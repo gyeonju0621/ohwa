@@ -1,6 +1,6 @@
 // 오화 — Onboard · Today · Charge
 const S = () => window.OhwaSaju;
-const fadeIn = { animation: 'ohwa-in 380ms var(--ease-calm) both', position: 'absolute', inset: 0, boxSizing: 'border-box' };
+const fadeIn = { animation: 'ohwa-in 560ms var(--ease-calm) both', position: 'absolute', inset: 0, boxSizing: 'border-box' };
 const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
 const fmtDate = (d) => `${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEK[d.getDay()]}요일`;
 const FULL_CHARGE = 30;
@@ -124,7 +124,7 @@ function TalkStory({ el, charge, start = 0, onClose }) {
         <Malangi key={i} h={232} pedestal={false} el={el} pose={p.locked ? 'sit' : p.pose} sleepy={false} lean={false} />
       </div>
       {p.emoji && !p.locked && <div key={'e' + i} style={{ position: 'absolute', left: '50%', bottom: 150, marginLeft: 70, fontSize: 46, animation: 'ohwa-pop 520ms 200ms var(--ease-jelly) both' }}>
-        <div style={{ animation: 'ohwa-bob 2.6s ease-in-out infinite', '--r0': '-8deg' }}>{p.emoji}</div></div>}
+        <div style={{ animation: 'ohwa-bob 4.4s ease-in-out infinite', '--r0': '-8deg' }}>{p.emoji}</div></div>}
       {p.locked && <div style={{ position: 'absolute', left: '50%', bottom: 160, marginLeft: 64, fontSize: 34, animation: 'ohwa-wiggle 1.4s ease-in-out infinite' }}>🔒</div>}
     </div>
     {/* 말풍선 판 */}
@@ -251,7 +251,7 @@ function TodayScreen({ go, fills, addFill }) {
           background: `linear-gradient(180deg, var(--scene-top) 0%, ${tint(e, 22)} 60%, ${tint(e, 45)} 100%)`, boxShadow: 'var(--shadow-card)' }}>
           {e === rec && <span style={{ position: 'absolute', left: 10, top: 10, height: 20, padding: '0 8px', borderRadius: 10, background: INK, color: 'var(--on-ink)', fontSize: 10.5, fontWeight: 800, lineHeight: '20px', zIndex: 2 }}>오늘 추천</span>}
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 40, display: 'flex', justifyContent: 'center' }}>
-            <img src={EL[e].img} alt={`${EL[e].ko} 말랑이`} style={{ height: 104, animation: `ohwa-bob ${2.8 + i * .3}s ${-i * .6}s ease-in-out infinite`, '--r0': '0deg', filter: c ? 'none' : 'saturate(.55)' }} /></div>
+            <img src={EL[e].img} alt={`${EL[e].ko} 말랑이`} style={{ height: 104, animation: `ohwa-bob ${4.6 + i * .4}s ${-i * .9}s ease-in-out infinite`, '--r0': '0deg', filter: c ? 'none' : 'saturate(.55)' }} /></div>
           <div style={{ position: 'absolute', left: 12, right: 12, bottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: INK }}>{EL[e].ko} <span className="hanja" style={{ fontSize: 12, opacity: .6 }}>{EL[e].hj}</span></span>
             <span style={{ display: 'flex', gap: 2 }}>{[0, 1, 2, 3].map(k => <i key={k} style={{ width: 6, height: 6, borderRadius: 3, background: k < c ? INK : 'var(--line)' }} />)}</span>

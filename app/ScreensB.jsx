@@ -31,7 +31,7 @@ function SajuScreen({ go }) {
     {/* 나를 뜻하는 글자 — 행택 같은 색 블록 */}
     <div style={{ position: 'relative', margin: '14px 16px 0', borderRadius: 30, background: `linear-gradient(135deg, var(--scene-top) 0%, ${tint(dm, 30)} 45%, ${tint(dm, 70)} 100%)`, boxShadow: 'var(--shadow-card)', color: ink, padding: '20px 20px 22px', overflow: 'hidden', minHeight: 150 }}>
       <img src={BODY} alt="" style={{ position: 'absolute', right: 6, bottom: -26, height: 150, transform: 'rotate(-6deg)' }} />
-      <img src={EL[dm].piece} alt="" style={{ position: 'absolute', right: 86, bottom: 70, width: 38, animation: 'ohwa-bob 3s ease-in-out infinite' }} />
+      <img src={EL[dm].piece} alt="" style={{ position: 'absolute', right: 86, bottom: 70, width: 38, animation: 'ohwa-bob 5s ease-in-out infinite' }} />
       <div style={{ fontSize: 13, fontWeight: 800, opacity: .7 }}>나를 뜻하는 글자 · 일간</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
         <div style={{ width: 66, height: 66, borderRadius: 22, background: 'var(--card)', display: 'grid', placeItems: 'center', boxShadow: '0 8px 16px -10px rgba(0,0,0,.4)' }}>

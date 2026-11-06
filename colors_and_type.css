@@ -57,9 +57,9 @@
 
   /* ---------- Motion: 꾹 → 출렁 ---------- */
   --ease-squish: cubic-bezier(.3,0,.2,1);
-  --ease-jelly:  cubic-bezier(.18,1.6,.4,1);
+  --ease-jelly:  cubic-bezier(.3,1.22,.45,1);   /* 2026-11-06: 덜 튕기고 처음이 덜 급하게 (원래 .18,1.6,.4,1) */
   --ease-calm:   cubic-bezier(.4,0,.2,1);
-  --d-press: 90ms; --d-jelly: 650ms; --d-fade: 300ms;
+  --d-press: 110ms; --d-jelly: 850ms; --d-fade: 400ms;
 }
 
 [data-theme="night"] {
@@ -216,3 +216,5 @@ html { touch-action: manipulation; }
 @keyframes ohwa-nod    { 0% { transform: none; } 35% { transform: rotate(-4deg) translateY(2px) scale(1.02,.98); } 70% { transform: rotate(2deg); } 100% { transform: none; } }
 @keyframes ohwa-giggle { 0%,100% { transform: none; } 20% { transform: rotate(-3deg) scale(1.02,.98); } 45% { transform: rotate(3deg) scale(.99,1.01); } 70% { transform: rotate(-2deg); } }
 @keyframes ohwa-land   { 0% { transform: translateY(-24px) scale(.97,1.03); } 45% { transform: translateY(0) scale(1.1,.9); } 70% { transform: translateY(-6px) scale(.98,1.02); } 100% { transform: none; } }
+/* zzz: 확 솟지 않고 천천히 떠오르게 */
+@keyframes ohwa-zz { 0% { transform: translate(0,0) scale(.7); opacity: 0; } 25% { opacity: .9; } 100% { transform: translate(14px,-30px) scale(1.05); opacity: 0; } }

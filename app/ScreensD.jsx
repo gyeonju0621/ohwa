@@ -34,9 +34,9 @@ function SplashScreen({ onDone, quick }) {
     {/* 조각 고리 + 말랑이 */}
     <div style={{ position: 'relative', width: 2 * R + 70, height: 2 * R + 70, marginTop: -40 }}>
       <div style={{ position: 'absolute', inset: 35, borderRadius: '50%', border: '1.5px dashed var(--line)', animation: 'ohwa-in 600ms both' }} />
-      <div style={{ position: 'absolute', inset: 0, animation: 'ohwa-spin 22s linear infinite' }}>
+      <div style={{ position: 'absolute', inset: 0, animation: 'ohwa-spin 36s linear infinite' }}>
         {EL_ORDER.map((e, k) => { const a = -Math.PI / 2 + k * 2 * Math.PI / 5, x = R + 35 + Math.cos(a) * R, y = R + 35 + Math.sin(a) * R;
-          return <div key={e} style={{ position: 'absolute', left: x - 22, top: y - 22, width: 44, height: 44, animation: 'ohwa-spin 22s linear infinite reverse' }}>
+          return <div key={e} style={{ position: 'absolute', left: x - 22, top: y - 22, width: 44, height: 44, animation: 'ohwa-spin 36s linear infinite reverse' }}>
             <img src={EL[e].piece} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 6px 8px rgba(40,30,25,.16))', animation: `ohwa-pop 520ms ${120 + k * 110}ms var(--ease-jelly) both` }} />
           </div>; })}
       </div>
@@ -124,7 +124,7 @@ const linkBtn = { border: 0, background: 'transparent', cursor: 'pointer', fontF
 function NfcRings({ size = 260, fast }) {
   return <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0, pointerEvents: 'none' }}>
     {[0, 1, 2].map(k => <i key={k} style={{ position: 'absolute', left: 0, top: 0, width: size, height: size, borderRadius: '50%', border: '2px solid var(--water)',
-      animation: `ohwa-nfc ${fast ? 1.4 : 2.6}s ${k * (fast ? .46 : .86)}s var(--ease-calm) infinite` }} />)}
+      animation: `ohwa-nfc ${fast ? 2.2 : 3.8}s ${k * (fast ? .73 : 1.26)}s var(--ease-calm) infinite` }} />)}
   </div>;
 }
 function IntroScreen({ onDone }) {
@@ -153,7 +153,7 @@ function IntroScreen({ onDone }) {
       <NfcRings size={250} />
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}><Malangi h={190} pedestal={false} el="water" pose="cheer" sleepy={false} /></div>
       <div style={{ position: 'absolute', right: 58, top: 2, width: 58, height: 92, borderRadius: 16, background: 'var(--ink-strong)', boxShadow: '0 14px 24px -12px rgba(40,25,15,.5)',
-        display: 'grid', placeItems: 'center', color: 'var(--on-ink)', animation: 'ohwa-tapphone 2.6s var(--ease-calm) infinite' }}><Icon name="Nfc" size={24} /></div>
+        display: 'grid', placeItems: 'center', color: 'var(--on-ink)', animation: 'ohwa-tapphone 3.8s var(--ease-calm) infinite' }}><Icon name="Nfc" size={24} /></div>
     </div>;
   };
   return <div style={fadeIn}>

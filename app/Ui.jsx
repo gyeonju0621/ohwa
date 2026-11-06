@@ -157,7 +157,7 @@ function PartsInBody({ parts }) {
   return <>{parts.map((p, i) => {
     const [x, y, w] = SLOT_POS[i];
     return <img key={i + p} src={EL[p].piece} alt="" style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: `${w}%`, transform: 'translate(-50%,-50%)', opacity: .88,
-      filter: 'saturate(1.05) drop-shadow(0 2px 3px rgba(0,0,0,.08))', animation: 'ohwa-pop 520ms var(--ease-jelly) both', pointerEvents: 'none' }} />;
+      filter: 'saturate(1.05) drop-shadow(0 2px 3px rgba(0,0,0,.08))', animation: 'ohwa-pop 800ms var(--ease-calm) both', pointerEvents: 'none' }} />;
   })}</>;
 }
 
@@ -478,11 +478,11 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
     <div style={{ position: 'absolute', left: '50%', bottom: h * .005, width: w * (.78 + .16 * fill) * (dangle ? .55 : 1), height: h * .055, borderRadius: '50%', background: 'rgba(40,30,25,.22)', filter: 'blur(7px)', zIndex: 1,
       opacity: dangle ? .45 : 1, animation: 'none', transform: `translateX(calc(-50% + ${dangle ? dangle.tx : 0}px))`, transition: 'width 300ms, opacity 300ms, transform 120ms' }} />
     {float}
-    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: h, zIndex: 2, transform: `rotate(${dangle ? 0 : leanDeg + tilt}deg)`, transformOrigin: '50% 100%', transition: 'transform 700ms var(--ease-jelly)' }}>
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: h, zIndex: 2, transform: `rotate(${dangle ? 0 : leanDeg + tilt}deg)`, transformOrigin: '50% 100%', transition: 'transform 1200ms var(--ease-calm)' }}>
       {/* 매달림: 잡은 곳을 축으로 들려서 흔들 */}
       <div style={{ position: 'absolute', inset: 0, transform: dangle ? `translate(${dangle.tx}px, ${dangle.ty}px)` : 'none', transition: dangle ? 'transform 110ms ease-out' : 'transform 260ms var(--ease-calm)' }}>
       <div style={{ position: 'absolute', inset: 0, transformOrigin: dangle ? `50% ${(h - ph * (1 - 10 / P.h)) / h * 100}%` : '50% 100%', animation: dangle ? 'ohwa-dangle 1.2s ease-in-out infinite alternate' : 'none' }}>
-      <div style={{ position: 'absolute', inset: 0, transformOrigin: '50% 100%', animation: floating ? 'ohwa-breathe 4.4s ease-in-out infinite' : 'none' }}>
+      <div style={{ position: 'absolute', inset: 0, transformOrigin: '50% 100%', animation: floating ? 'ohwa-breathe 6s ease-in-out infinite' : 'none' }}>
         {/* 누르는 요소(ref)는 절대 다시 만들지 않는다 — 다시 만들면 포인터 캡처가 끊겨 놓기·끌기를 놓친다 */}
           <div ref={ref} {...handlers} style={{ position: 'absolute', left: '50%', bottom: 0, width: isStand ? w : pw, height: isStand ? h : ph, marginLeft: -(isStand ? w : pw) / 2,
             transformOrigin: dangle ? '50% 10%' : '50% 97%', cursor: disabled ? 'default' : dangle ? 'grabbing' : 'pointer', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none' }}>
@@ -510,21 +510,21 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
       </div>
       {/* 날아오는 조각 — 배 가운데를 목표로 */}
       {flies.map(f => <img key={f.id} src={EL[f.el].piece} alt="" style={{ position: 'absolute', left: '50%', bottom: h * (1 - B.cy) - pieceW / 2, width: pieceW * 1.1, marginLeft: -pieceW * .55, zIndex: 5, pointerEvents: 'none',
-        '--sx': `${f.sx}px`, '--sy': `${f.sy}px`, animation: 'ohwa-flyin 620ms cubic-bezier(.3,.1,.3,1) forwards' }} />)}
+        '--sx': `${f.sx}px`, '--sy': `${f.sy}px`, animation: 'ohwa-flyin 900ms cubic-bezier(.4,.1,.3,1) forwards' }} />)}
       {/* 10개마다 반짝 */}
       {burst > 0 && <div key={'b' + burst} style={{ position: 'absolute', left: '50%', top: '40%', width: 0, height: 0, zIndex: 6, pointerEvents: 'none' }}>
         {Array.from({ length: 12 }).map((_, i) => <span key={i} style={{ position: 'absolute', left: 0, top: 0, fontSize: 14 + (i % 3) * 6, color: el ? `var(--${el})` : '#FFC247', '--r': `${i * 30}deg`, '--d': `${-h * (.42 + (i % 2) * .12)}px`,
           animation: `ohwa-burst 900ms ${i * 18}ms cubic-bezier(.2,.7,.3,1) both`, textShadow: '0 1px 0 #fff' }}>{i % 3 ? '✦' : '●'}</span>)}
       </div>}
       {hearts.map(t => <span key={t.id} style={{ position: 'absolute', left: '50%', top: h * .25, zIndex: 6, pointerEvents: 'none', fontSize: 22 * t.s, color: el ? `var(--${el})` : '#FF626B', textShadow: '0 2px 0 #fff',
-        '--hx': `${t.dx}px`, animation: 'ohwa-heart 1.1s cubic-bezier(.2,.7,.3,1) forwards' }}>♥</span>)}
+        '--hx': `${t.dx}px`, animation: 'ohwa-heart 1.8s cubic-bezier(.3,.5,.3,1) forwards' }}>♥</span>)}
       {/* 어지러움 별 */}
       {expr === 'dizzy' && <div style={{ position: 'absolute', left: '50%', top: h * .02, width: 0, height: 0, zIndex: 6, pointerEvents: 'none', animation: 'ohwa-spin 1.2s linear infinite' }}>
         {[0, 1, 2].map(i => <span key={i} style={{ position: 'absolute', left: Math.cos(i * 2.09) * w * .32 - 8, top: Math.sin(i * 2.09) * 12 - 8, fontSize: 16, color: '#FFC247' }}>★</span>)}
       </div>}
       {/* 꾸벅 */}
       {cur === 'sit' && !forced && <div style={{ position: 'absolute', left: '50%', top: h * .12, marginLeft: w * .32, zIndex: 6, pointerEvents: 'none', fontWeight: 900, color: '#8C8794' }}>
-        {[0, 1, 2].map(i => <span key={i} style={{ position: 'absolute', left: i * 9, top: -i * 12, fontSize: 12 + i * 4, animation: `ohwa-zz 2.4s ${i * .6}s ease-out infinite` }}>z</span>)}
+        {[0, 1, 2].map(i => <span key={i} style={{ position: 'absolute', left: i * 9, top: -i * 12, fontSize: 12 + i * 4, animation: `ohwa-zz 4.8s ${i * 1.6}s ease-in-out infinite` }}>z</span>)}
       </div>}
     </div>
   </div>;
@@ -542,9 +542,9 @@ function FloatingParts({ counts, h, top = 0, spread = 1 }) {
       const x = Math.cos(ang) * R, y = Math.sin(ang) * R * .6 + (i % 3) * 7;
       const size = h * (.155 + (i % 3) * .02);
       return <div key={e + i} style={{ position: 'absolute', left: x, top: y, width: size, height: size, marginLeft: -size / 2, marginTop: -size / 2,
-        animation: `ohwa-in 520ms ${i * 60}ms var(--ease-jelly) both` }}>
+        animation: `ohwa-in 700ms ${i * 90}ms var(--ease-calm) both` }}>
         <img src={EL[e].piece} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 10px rgba(40,30,25,.16))',
-          animation: `ohwa-bob ${2.6 + (i % 4) * .45}s ${-(i * .53)}s ease-in-out infinite`, '--r0': `${((i * 37) % 30) - 15}deg` }} />
+          animation: `ohwa-bob ${4.6 + (i % 4) * .6}s ${-(i * .53)}s ease-in-out infinite`, '--r0': `${((i * 37) % 30) - 15}deg` }} />
       </div>;
     })}
   </div>;
