@@ -408,7 +408,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
     prevSerial.current = newest;
     const id = Math.random(), from = flyFrom || { x: 0, y: h * .7 };
     setFlies(f => [...f.slice(-5), { id, el: parts[b - 1], sx: from.x + (Math.random() - .5) * 30, sy: from.y }]);
-    later('fly' + id, 700, () => setFlies(f => f.filter(x => x.id !== id)));
+    later('fly' + id, 1000, () => setFlies(f => f.filter(x => x.id !== id)));   // 날기(0.8초)가 끝난 뒤 지움 (끝나면 onAnimationEnd가 먼저 지움)
     if (Math.floor(b / 10) > Math.floor(a / 10)) {
       if (!forced && !dangle) { setPose('cheer'); later('back', 1500, () => setPose('stand')); }
       play('hop'); setBurst(x => x + 1); buzz([10, 40, 14]);
@@ -524,7 +524,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
               <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
                 {vis.map(([p, idx]) => { const { x, y, rot } = bellySlot(idx, fill, B, bulgeOn);
                   return <img key={idx} src={EL[p].piece} alt="" draggable={false} style={{ position: 'absolute', left: `${x * 100}%`, top: `${y * 100}%`, width: pieceW, marginLeft: -pieceW / 2, marginTop: -pieceW / 2,
-                    '--rot': `${rot}deg`, '--fx': '0px', '--fy': '0px', transform: `rotate(${rot}deg)`, opacity: .84, filter: 'saturate(1.05) drop-shadow(0 1px 2px rgba(0,0,0,.12))', animation: idx === newest ? 'ohwa-bellypop 520ms 380ms var(--ease-jelly) both' : 'none' }} />; })}
+                    '--rot': `${rot}deg`, '--fx': '0px', '--fy': '0px', transform: `rotate(${rot}deg)`, opacity: .84, filter: 'saturate(1.05) drop-shadow(0 1px 2px rgba(0,0,0,.12))', animation: idx === newest ? 'ohwa-bellypop 620ms 640ms var(--ease-calm) both' : 'none' }} />; })}
               </div>
             </div>
            </div>
@@ -535,7 +535,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
       </div>
       {/* 날아오는 조각 — 배 가운데를 목표로 */}
       {flies.map(f => <img key={f.id} src={EL[f.el].piece} alt="" style={{ position: 'absolute', left: '50%', bottom: h * (1 - B.cy) - pieceW / 2, width: pieceW * 1.1, marginLeft: -pieceW * .55, zIndex: 5, pointerEvents: 'none',
-        '--sx': `${f.sx}px`, '--sy': `${f.sy}px`, animation: 'ohwa-flyin 900ms cubic-bezier(.4,.1,.3,1) forwards' }} />)}
+        '--sx': `${f.sx}px`, '--sy': `${f.sy}px`, animation: 'ohwa-flyin 800ms cubic-bezier(.4,.1,.3,1) forwards' }} onAnimationEnd={() => setFlies(x => x.filter(y => y.id !== f.id))} />)}
       {/* 10개마다 반짝 */}
       {burst > 0 && <div key={'b' + burst} style={{ position: 'absolute', left: '50%', top: '40%', width: 0, height: 0, zIndex: 6, pointerEvents: 'none' }}>
         {Array.from({ length: 12 }).map((_, i) => <span key={i} style={{ position: 'absolute', left: 0, top: 0, fontSize: 14 + (i % 3) * 6, color: el ? `var(--${el})` : '#FFC247', '--r': `${i * 30}deg`, '--d': `${-h * (.42 + (i % 2) * .12)}px`,
@@ -590,10 +590,11 @@ function CharOrb({ el, size = 64, on, dim, onClick, label }) {
 
 /* 한자 타일 — 사주 글자 */
 function HanjaTile({ ch, el, read, size = 60 }) {
-  return <div style={{ width: size, height: size, borderRadius: size * .32, background: `var(--${el}-2)`, display: 'grid', placeItems: 'center', position: 'relative',
+  // 2026-11-07: 읽기(경·신…)를 한자 위에 겹쳐 작게(9.5px) 두었더니 폰에서 안 보였다 → 한자 아래 줄에 따로, 더 크게
+  return <div style={{ width: size, height: size, borderRadius: size * .32, background: `var(--${el}-2)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: read ? Math.max(2, size * .04) : 0, paddingBottom: read ? 3 : 0, boxSizing: 'border-box', position: 'relative',
     boxShadow: `inset 0 1px 0 rgba(255,255,255,.8), inset 0 -4px 0 color-mix(in oklab, var(--${el}) 35%, transparent)` }}>
-    <span className="hanja" style={{ fontSize: size * .46, color: `var(--${el}-ink)`, lineHeight: 1 }}>{ch}</span>
-    {read && <span style={{ position: 'absolute', bottom: 5, fontSize: 9.5, fontWeight: 700, color: `var(--${el}-ink)`, opacity: .7 }}>{read}</span>}
+    <span className="hanja" style={{ fontSize: size * (read ? .4 : .46), color: `var(--${el}-ink)`, lineHeight: 1 }}>{ch}</span>
+    {read && <span style={{ fontSize: Math.max(11.5, size * .22), fontWeight: 800, color: `var(--${el}-ink)`, lineHeight: 1 }}>{read}</span>}
   </div>;
 }
 

@@ -234,3 +234,6 @@ html.ios.m body { display: flex; justify-content: center; align-items: flex-star
 html.ios.m #root { position: relative; left: auto !important; transform: none !important; }
 /* 기기에서 '동작 줄이기'를 켜 두었으면 계속 도는 장식 움직임을 멈춤 */
 @media (prefers-reduced-motion: reduce) { .phone *, .phone *::before, .phone *::after { animation-iteration-count: 1 !important; } .breathe { animation: none !important; } }
+/* 2026-11-07 조각 잔상: 날아오는 조각이 다 오기 전에 배 속 조각이 먼저 생겨 둘이 겹쳐 보였고, 날던 조각이 중간에 지워져 흔적이 남았음
+   → 0.8초 동안 날아와 배에 닿으면서 완전히 사라지고(마지막 투명 0), 배 속 조각은 그 순간(0.64초 뒤) 쏙 */
+@keyframes ohwa-flyin { 0% { transform: translate(var(--sx), var(--sy)) scale(.9); opacity: 0; } 10% { opacity: 1; } 55% { transform: translate(calc(var(--sx) * .4), calc(var(--sy) * .25 - 70px)) scale(1.05); opacity: 1; } 86% { opacity: 1; } 100% { transform: translate(0, 0) scale(.6); opacity: 0; } }
