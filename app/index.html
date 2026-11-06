@@ -10,7 +10,7 @@
 <meta property="og:image" content="../assets/malangi/body.png">
 <title>오화 — App</title>
 <link rel="icon" href="../assets/logo/ohwa-seal.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../colors_and_type.css?v=1793977682">
+<link rel="stylesheet" href="../colors_and_type.css?v=1793978803">
 <style>
   html,body{margin:0;height:100%;overflow:hidden}
   body{background:#D8C9B6;display:flex;align-items:center;justify-content:center}
@@ -47,30 +47,34 @@ function fit() {
   // 앱 전체가 계속 커졌다 작아졌다 했다 → 높이가 바뀌면 캔버스 높이(--ph)만 맞춘다
   if (m) {
     if (innerWidth !== fit.w) { fit.w = innerWidth; fit.s = Math.min(innerWidth / 390, innerHeight / 740); }
-    const s = fit.s; root.style.transform = 'scale(' + s + ')'; root.style.left = Math.max(0, (innerWidth - 390 * s) / 2) + 'px'; de.style.setProperty('--ph', (innerHeight / s) + 'px');
+    const s = fit.s; de.style.setProperty('--ph', (innerHeight / s) + 'px');
+    // 아이폰: transform: scale은 사파리가 그림을 흐리게 다시 그려 움직일 때 지글거림 → zoom으로 (가운데 놓기는 CSS flex)
+    if (IOS) { root.style.zoom = s; root.style.transform = ''; root.style.left = ''; }
+    else { root.style.transform = 'scale(' + s + ')'; root.style.left = Math.max(0, (innerWidth - 390 * s) / 2) + 'px'; }
   }
-  else { fit.w = 0; root.style.left = ''; root.style.transform = 'scale(' + Math.min(1, (innerHeight - 40) / 864, (innerWidth - 40) / 410) + ')'; }
+  else { fit.w = 0; root.style.zoom = ''; root.style.left = ''; root.style.transform = 'scale(' + Math.min(1, (innerHeight - 40) / 864, (innerWidth - 40) / 410) + ')'; }
 }
+// 아이폰·아이패드: 사파리에서 무거운 효과(움직이는 그림자 필터, 숨쉬기 등)를 덜어 낸 가벼운 모드 (html.ios). 개발용 ?ios=1
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) || new URLSearchParams(location.search).has('ios');
+if (IOS) document.documentElement.classList.add('ios');
 addEventListener('resize', fit); fit();
-// 아이폰·아이패드: 사파리에서 무거운 효과(움직이는 그림자 필터 등)를 덜어 낸 가벼운 모드 (html.ios)
-if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('ios');
 try { const th = localStorage.getItem('ohwa5-theme'); if (th) document.documentElement.dataset.theme = th; } catch (_) {}
 </script>
 <!-- body.png(서 있기)를 자세 사진 색(평균 233,218,196)에 맞추는 색 행렬 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ohwa-warm" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0.95 0 0 0  0 0 0.895 0 0  0 0 0 1 0"/></filter></svg>
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="feel.js?v=1793977682"></script>
-<script src="Saju.js?v=1793977682"></script>
-<script src="Content.js?v=1793977682"></script>
+<script src="feel.js?v=1793978803"></script>
+<script src="Saju.js?v=1793978803"></script>
+<script src="Content.js?v=1793978803"></script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script type="text/babel" src="tweaks_panel.jsx"></script>
-<script type="text/babel" src="Ui.jsx?v=1793977682"></script>
-<script type="text/babel" src="ScreensA.jsx?v=1793977682"></script>
-<script type="text/babel" src="ScreensB.jsx?v=1793977682"></script>
-<script type="text/babel" src="ScreensC.jsx?v=1793977682"></script>
-<script type="text/babel" src="ScreensD.jsx?v=1793977682"></script>
+<script type="text/babel" src="Ui.jsx?v=1793978803"></script>
+<script type="text/babel" src="ScreensA.jsx?v=1793978803"></script>
+<script type="text/babel" src="ScreensB.jsx?v=1793978803"></script>
+<script type="text/babel" src="ScreensC.jsx?v=1793978803"></script>
+<script type="text/babel" src="ScreensD.jsx?v=1793978803"></script>
 <script type="text/babel">
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "theme": "studio",

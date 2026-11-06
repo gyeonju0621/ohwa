@@ -205,7 +205,7 @@ body.ohwa { font-family: var(--font-sans); background: var(--bg); color: var(--f
 [data-theme="night"] { --floor-glow: rgba(255,238,220,.07); }
 /* 2026-11-06 폰 실사용 수정: 두 번 탭 확대 지연 없애기 · iOS에서 둥근 무대 밖으로 그림이 튀어나오지 않게 자르기 · 숨쉬기만 하는 가만히 모션 */
 html { touch-action: manipulation; }
-.scene, .stage, .clip { isolation: isolate; transform: translateZ(0); }
+.scene, .stage, .clip { isolation: isolate; }   /* 2026-11-07: translateZ(0)은 아이폰 사파리에서 스크롤 화면 안 깜빡임을 일으켜 뺐다 */
 .chipglass { -webkit-backdrop-filter: none; backdrop-filter: none; }
 @keyframes ohwa-breathe { 0%,100% { transform: none; } 50% { transform: scale(1.012, .992); } }
 /* 2026-11-06 '너무 빨리빨리 움직여' → 말랑이 반응 동작을 더 작고 느리게 (같은 이름으로 다시 정의, 뒤에 있는 게 이김) */
@@ -227,3 +227,10 @@ html, body, .phone, .phone * { -webkit-tap-highlight-color: transparent; }
 .phone :focus:not(:focus-visible) { outline: none; }
 /* ② 아이폰(html.ios): 움직이는 조각에 붙은 그림자 필터(drop-shadow)는 사파리가 매 프레임 CPU로 다시 그려 움직임이 끊기고 튀어 보임 → 끔 */
 html.ios img[style*="drop-shadow"] { filter: none !important; }
+/* 2026-11-07 아이폰 깜빡임: 그림을 1%씩 키웠다 줄이는 숨쉬기는 사파리에서 픽셀이 매 프레임 다시 맞춰져 미세하게 떨려 보임 → 아이폰에선 끔 */
+html.ios .breathe { animation: none !important; }
+/* 아이폰은 앱 축소를 transform 대신 zoom으로(그림을 흐리게 다시 그리지 않음). 가운데 놓기는 flex로 */
+html.ios.m body { display: flex; justify-content: center; align-items: flex-start; }
+html.ios.m #root { position: relative; left: auto !important; transform: none !important; }
+/* 기기에서 '동작 줄이기'를 켜 두었으면 계속 도는 장식 움직임을 멈춤 */
+@media (prefers-reduced-motion: reduce) { .phone *, .phone *::before, .phone *::after { animation-iteration-count: 1 !important; } .breathe { animation: none !important; } }

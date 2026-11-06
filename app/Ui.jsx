@@ -482,7 +482,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
       {/* 매달림: 잡은 곳을 축으로 들려서 흔들 */}
       <div style={{ position: 'absolute', inset: 0, transform: dangle ? `translate(${dangle.tx}px, ${dangle.ty}px)` : 'none', transition: dangle ? 'transform 110ms ease-out' : 'transform 260ms var(--ease-calm)' }}>
       <div style={{ position: 'absolute', inset: 0, transformOrigin: dangle ? `50% ${(h - ph * (1 - 10 / P.h)) / h * 100}%` : '50% 100%', animation: dangle ? 'ohwa-dangle 1.2s ease-in-out infinite alternate' : 'none' }}>
-      <div style={{ position: 'absolute', inset: 0, transformOrigin: '50% 100%', animation: floating ? 'ohwa-breathe 6s ease-in-out infinite' : 'none' }}>
+      <div className="breathe" style={{ position: 'absolute', inset: 0, transformOrigin: '50% 100%', animation: floating ? 'ohwa-breathe 6s ease-in-out infinite' : 'none' }}>
         {/* 누르는 요소(ref)는 절대 다시 만들지 않는다 — 다시 만들면 포인터 캡처가 끊겨 놓기·끌기를 놓친다 */}
           <div ref={ref} {...handlers} style={{ position: 'absolute', left: '50%', bottom: 0, width: isStand ? w : pw, height: isStand ? h : ph, marginLeft: -(isStand ? w : pw) / 2,
             transformOrigin: dangle ? '50% 10%' : '50% 97%', cursor: disabled ? 'default' : dangle ? 'grabbing' : 'pointer', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none' }}>
