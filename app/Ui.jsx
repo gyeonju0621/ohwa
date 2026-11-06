@@ -171,7 +171,7 @@ function PartsInBody({ parts }) {
 const BODY_RATIO = 366 / 560;          // body.png 가로/세로
 const HEAD_END = .565;                 // 이 아래가 몸통(배). 위는 머리
 const BELLY = { cx: .5, cy: .765, rx: .185, ry: .1 };
-const SLICES = 20, FULL = 30;   // 배 부풀리기 띠 수 (32→20: 폰에서 가볍게)
+const FULL = 30;   // 배가 꽉 차는 조각 수 (배 부풀리기는 BulgeBody가 그림판에 줄마다 그린다)
 const bellyBump = (y) => { const t = (y - HEAD_END) / (.985 - HEAD_END); return t <= 0 || t >= 1 ? 0 : Math.pow(Math.sin(Math.PI * Math.pow(t, .85)), .9); };
 
 /* 조각 색을 섞어 몸 색 정하기: 2개부터 슬슬, 30개면 꽤 진하게 */
@@ -333,6 +333,37 @@ function PoseImg({ pose = 'stand', h = 100, style }) {
    두 번 톡톡 → 빙글 점프 / 빠르게 다섯 번 → 어지러워 @@ / 옆으로 끌기 → 발차기
    가만히 → 둥둥 + 3~5초마다 눈 깜빡 + 손가락 쪽을 바라봄, 9초 지나면 앉아서 꾸벅
    조각 10개마다 만세 + 폴짝 + 반짝이, 30개 넘게 눌러도 하트 */
+/* 서 있기 몸 — 배가 찬 만큼 배 부분만 옆으로 부풀려 그린다.
+   예전엔 몸을 가로 띠 20~32장으로 잘라 띠마다 늘렸는데, 띠 경계가 계단처럼 오돌토돌했다(특히 밤 배경).
+   → 그림판(canvas)에 한 줄(1px)씩 다시 그려 가장자리가 매끈하게. 배가 바뀔 때만 0.52초 동안 다시 그린다(가만히 있을 땐 그리지 않음). */
+const BULGE = .18, BULGE_PAD = .12;            // 배가 꽉 차면 최대 18% 넓어짐 · 그림판 양옆 여유 12%
+const bulgeImgs = {};
+function BulgeBody({ src, fill }) {
+  const cv = React.useRef(null), cur = React.useRef(fill), raf = React.useRef(0);
+  const draw = (f) => {
+    const c = cv.current, im = bulgeImgs[src]; if (!c || !im || !im.complete || !im.naturalWidth) return;
+    const W = im.naturalWidth, H = im.naturalHeight, CW = Math.round(W * (1 + 2 * BULGE_PAD));
+    if (c.width !== CW || c.height !== H) { c.width = CW; c.height = H; }
+    const g = c.getContext('2d'); g.clearRect(0, 0, CW, H);
+    const y0 = Math.floor(H * HEAD_END);
+    g.drawImage(im, 0, 0, W, y0, (CW - W) / 2, 0, W, y0);                              // 머리는 그대로
+    for (let y = y0; y < H; y++) {                                                    // 배는 줄마다 가운데를 기준으로 옆으로
+      const s = 1 + BULGE * f * bellyBump((y + .5) / H);
+      g.drawImage(im, 0, y, W, 1, (CW - W * s) / 2, y, W * s, 1);
+    }
+  };
+  React.useEffect(() => {
+    let im = bulgeImgs[src]; if (!im) { im = bulgeImgs[src] = new Image(); im.src = src; }
+    if (im.complete) draw(cur.current); else im.addEventListener('load', () => draw(cur.current), { once: true });
+  }, [src]);
+  React.useEffect(() => {
+    const a = cur.current, b = fill, t0 = performance.now(); cancelAnimationFrame(raf.current);
+    const step = (now) => { const k = Math.min(1, (now - t0) / 520), e = 1 - Math.pow(1 - k, 3); cur.current = a + (b - a) * e; draw(cur.current); if (k < 1) raf.current = requestAnimationFrame(step); };
+    raf.current = requestAnimationFrame(step); return () => cancelAnimationFrame(raf.current);
+  }, [fill]);
+  return <canvas ref={cv} aria-hidden="true" style={{ position: 'absolute', top: 0, left: `${-BULGE_PAD * 100}%`, width: `${(1 + 2 * BULGE_PAD) * 100}%`, height: '100%', pointerEvents: 'none' }} />;
+}
+
 function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, onPress, onHold, onRelease, disabled, children, holdEvery, float, pose: forced, enter = false, lean = true, flyFrom, sleepy = true, tilt = 0 }) {
   const w = h * BODY_RATIO;
   const fill = Math.min(1, parts.length / FULL);
@@ -465,11 +496,6 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
   const pieceW = w * .24;
   const lastV = parts.slice(-VISIBLE); const vis = lastV.map((p, i) => [p, newest - (lastV.length - 1 - i)]);   // [기운, 일련번호]
   const B = P.belly, bulgeOn = isStand;
-  const bands = [{ a: 0, b: HEAD_END + .004, s: 1 }];
-  if (isStand && fill > 0) for (let i = 0; i < SLICES; i++) {   // 배가 비었으면 한 장으로 (띠로 자를 필요 없음)
-    const a = HEAD_END + (1 - HEAD_END) * i / SLICES, b = HEAD_END + (1 - HEAD_END) * (i + 1) / SLICES;
-    bands.push({ a: a - .0015, b: b + .0015, s: 1 + .18 * fill * bellyBump((a + b) / 2) });
-  } else bands[0].b = 1;
   const floating = idle && cur !== 'sit' && !dangle;
   const reactAnim = { drop: 'ohwa-drop 1400ms var(--ease-calm) both', hop: 'ohwa-hop 1050ms var(--ease-calm) both', pop: 'ohwa-posepop 760ms var(--ease-calm) both', wiggle: 'ohwa-wiggle 1000ms ease-in-out both',
     spin: 'ohwa-spinjump 1200ms var(--ease-calm) both', nod: 'ohwa-nod 950ms var(--ease-calm) both', giggle: 'ohwa-giggle 1200ms ease-in-out both', land: 'ohwa-land 1100ms var(--ease-calm) both' }[react.k] || 'none';
@@ -490,9 +516,8 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
             <div key={cur} style={{ position: 'absolute', inset: 0, animation: 'ohwa-posepop 720ms var(--ease-calm) both', pointerEvents: 'none' }}>
               {/* 몸 + 얼굴 — 서 있기(body.png)는 자세 사진 색에 맞춰 살짝 따뜻하게 */}
               <div style={{ position: 'absolute', inset: 0 }}>
-                {bands.map((bd, i) => <div key={i} style={{ position: 'absolute', inset: 0, clipPath: isStand ? `inset(${bd.a * 100}% -30% ${(1 - bd.b) * 100}% -30%)` : 'none', transform: `scaleX(${bd.s})`, transition: 'transform 520ms var(--ease-jelly)', pointerEvents: 'none' }}>
-                  <img src={P.src} alt="" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', ...(isStand ? {} : POSE_FADE) }} />
-                </div>)}
+                {isStand ? <BulgeBody src={P.src} fill={fill} />
+                  : <img src={P.src} alt="" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', ...POSE_FADE }} />}
                 <Face pose={cur} gaze={cur === 'sit' && !forced ? [0, 0] : gaze} blink={blink} closed={cur === 'sit' && !forced} />
               </div>
               {/* 배 속 조각 (보이는 건 최대 5개) */}
