@@ -473,13 +473,13 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
   return <div ref={boxRef} style={{ position: 'relative', width: box, height: h, margin: '0 auto' }}>
     {pedestal && <Pedestal w={ped || h * .9} el={el} />}
     <div style={{ position: 'absolute', left: '50%', bottom: h * .005, width: w * (.78 + .16 * fill) * (dangle ? .55 : 1), height: h * .055, borderRadius: '50%', background: 'rgba(40,30,25,.22)', filter: 'blur(7px)', zIndex: 1,
-      opacity: dangle ? .45 : 1, animation: floating ? 'ohwa-shadow 3.2s ease-in-out infinite' : 'none', transform: `translateX(calc(-50% + ${dangle ? dangle.tx : 0}px))`, transition: 'width 300ms, opacity 300ms, transform 120ms' }} />
+      opacity: dangle ? .45 : 1, animation: 'none', transform: `translateX(calc(-50% + ${dangle ? dangle.tx : 0}px))`, transition: 'width 300ms, opacity 300ms, transform 120ms' }} />
     {float}
     <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: h, zIndex: 2, transform: `rotate(${dangle ? 0 : leanDeg + tilt}deg)`, transformOrigin: '50% 100%', transition: 'transform 700ms var(--ease-jelly)' }}>
       {/* 매달림: 잡은 곳을 축으로 들려서 흔들 */}
       <div style={{ position: 'absolute', inset: 0, transform: dangle ? `translate(${dangle.tx}px, ${dangle.ty}px)` : 'none', transition: dangle ? 'transform 110ms ease-out' : 'transform 260ms var(--ease-calm)' }}>
       <div style={{ position: 'absolute', inset: 0, transformOrigin: dangle ? `50% ${(h - ph * (1 - 10 / P.h)) / h * 100}%` : '50% 100%', animation: dangle ? 'ohwa-dangle 1.2s ease-in-out infinite alternate' : 'none' }}>
-      <div style={{ position: 'absolute', inset: 0, animation: floating ? 'ohwa-float 3.2s ease-in-out infinite' : 'none' }}>
+      <div style={{ position: 'absolute', inset: 0, transformOrigin: '50% 100%', animation: floating ? 'ohwa-breathe 4.4s ease-in-out infinite' : 'none' }}>
         {/* 누르는 요소(ref)는 절대 다시 만들지 않는다 — 다시 만들면 포인터 캡처가 끊겨 놓기·끌기를 놓친다 */}
           <div ref={ref} {...handlers} style={{ position: 'absolute', left: '50%', bottom: 0, width: isStand ? w : pw, height: isStand ? h : ph, marginLeft: -(isStand ? w : pw) / 2,
             transformOrigin: dangle ? '50% 10%' : '50% 97%', cursor: disabled ? 'default' : dangle ? 'grabbing' : 'pointer', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none' }}>

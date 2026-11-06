@@ -203,3 +203,8 @@ body.ohwa { font-family: var(--font-sans); background: var(--bg); color: var(--f
 @keyframes ohwa-nfc      { 0% { transform: translate(-50%,-50%) scale(.42); opacity: .75; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 0; } }
 @keyframes ohwa-tapphone { 0%,100% { transform: translate(16px,-12px) rotate(14deg); } 38%,62% { transform: translate(-8px,10px) rotate(-3deg); } }
 [data-theme="night"] { --floor-glow: rgba(255,238,220,.07); }
+/* 2026-11-06 폰 실사용 수정: 두 번 탭 확대 지연 없애기 · iOS에서 둥근 무대 밖으로 그림이 튀어나오지 않게 자르기 · 숨쉬기만 하는 가만히 모션 */
+html { touch-action: manipulation; }
+.scene, .stage, .clip { isolation: isolate; transform: translateZ(0); }
+.chipglass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+@keyframes ohwa-breathe { 0%,100% { transform: none; } 50% { transform: scale(1.012, .992); } }

@@ -38,6 +38,8 @@
   let NB = null;
   const noise = (c) => { if (!NB) { NB = c.createBuffer(1, c.sampleRate * 1.5, c.sampleRate); const d = NB.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return NB; };
   const rnd = (a, b) => a + Math.random() * (b - a);
+  // 소리 엔진은 처음 만들 때 한 번 느리다(폰에선 수백 ms). 화면을 처음 누르는 순간 미리 깨워 둬서, 오행 고르기 같은 첫 반응이 늦지 않게
+  addEventListener('pointerdown', () => { if (!F.enabled) return; const c = ac(); if (c) noise(c); }, { once: true, capture: true, passive: true });
 
   // 방울 하나: 반지름이 작을수록 높고 짧다. 터질 때 음이 살짝 올라간다(실제 방울 소리 모델)
   function bubble(c, t, f, dur, vol) {

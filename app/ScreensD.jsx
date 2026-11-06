@@ -78,7 +78,7 @@ function LoginScreen({ onDone }) {
   return <div style={fadeIn}>
     <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0 0', color: 'var(--ink-strong)' }}><OhwaLogo height={22} /></div>
     {/* 무대 */}
-    <div style={{ position: 'relative', margin: '14px 14px 0', height: 466, borderRadius: 38, overflow: 'hidden', background: pastel5 }}>
+    <div className="clip" style={{ position: 'relative', margin: '14px 14px 0', height: 466, borderRadius: 38, overflow: 'hidden', background: pastel5 }}>
       <div style={{ position: 'absolute', left: '50%', bottom: -150, width: 560, height: 230, marginLeft: -280, borderRadius: '50%', background: 'var(--floor-glow, rgba(255,255,255,.3))' }} />
       <div style={{ position: 'relative', padding: '26px 24px 0', color: INK }}>
         <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-.045em', lineHeight: 1.25 }}>오늘 부족한 기운,<br />말랑이에게 채워 볼까요?</div>
@@ -89,7 +89,7 @@ function LoginScreen({ onDone }) {
       </div>
     </div>
     {/* 버튼 */}
-    <div style={{ position: 'absolute', left: 20, right: 20, bottom: 30, display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ position: 'absolute', left: 20, right: 20, bottom: 30, zIndex: 5, display: 'flex', flexDirection: 'column', gap: 8 }}>
       <AuthButton kind="kakao" label="카카오로 3초 만에 시작" icon={<KakaoMark />} onGo={go} busy={busy} />
       <AuthButton kind="apple" label="Apple로 계속하기" icon={<Icon name="Apple" size={19} />} onGo={go} busy={busy} />
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 4, marginTop: 4 }}>
@@ -168,7 +168,7 @@ function IntroScreen({ onDone }) {
       onPointerLeave={() => { if (drag.current) { drag.current = null; setDx(0); } }}>
       <div style={{ display: 'flex', width: 390 * 3, height: '100%', transform: `translateX(${-i * 390 + dx}px)`, transition: dx ? 'none' : 'transform 520ms var(--ease-jelly)' }}>
         {P.map((p, k) => <div key={k} style={{ width: 390, flex: 'none', padding: '0 14px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ position: 'relative', height: 380, borderRadius: 38, overflow: 'hidden', background: sceneBg(p.el) }}>
+          <div className="clip" style={{ position: 'relative', height: 380, borderRadius: 38, overflow: 'hidden', background: sceneBg(p.el) }}>
             <div style={{ position: 'absolute', left: '50%', bottom: -150, width: 560, height: 230, marginLeft: -280, borderRadius: '50%', background: 'var(--floor-glow, rgba(255,255,255,.3))' }} />
             <div style={{ position: 'absolute', left: 0, right: 0, bottom: 22 }}>{Math.abs(k - i) <= 1 && visual(k)}</div>
           </div>

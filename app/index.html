@@ -10,7 +10,7 @@
 <meta property="og:image" content="../assets/malangi/body.png">
 <title>오화 — App</title>
 <link rel="icon" href="../assets/logo/ohwa-seal.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../colors_and_type.css?v=1793973618">
+<link rel="stylesheet" href="../colors_and_type.css?v=1793975213">
 <style>
   html,body{margin:0;height:100%;overflow:hidden}
   body{background:#D8C9B6;display:flex;align-items:center;justify-content:center}
@@ -42,8 +42,9 @@
 function fit() {
   const root = document.getElementById('root'), de = document.documentElement, m = innerWidth <= 540;
   de.classList.toggle('m', m);
-  if (m) { const s = innerWidth / 390; root.style.transform = 'scale(' + s + ')'; de.style.setProperty('--ph', (innerHeight / s) + 'px'); }
-  else root.style.transform = 'scale(' + Math.min(1, (innerHeight - 40) / 864, (innerWidth - 40) / 410) + ')';
+  // 폰 브라우저는 주소창·툴바 때문에 화면이 짧다(예: 390×664). 캔버스 높이를 최소 740으로 잡고, 모자라면 조금 작게 그려 가운데 둔다 (양옆은 같은 바탕색이라 티가 안 남)
+  if (m) { const s = Math.min(innerWidth / 390, innerHeight / 740); root.style.transform = 'scale(' + s + ')'; root.style.left = Math.max(0, (innerWidth - 390 * s) / 2) + 'px'; de.style.setProperty('--ph', (innerHeight / s) + 'px'); }
+  else root.style.left = '', root.style.transform = 'scale(' + Math.min(1, (innerHeight - 40) / 864, (innerWidth - 40) / 410) + ')';
 }
 addEventListener('resize', fit); fit();
 try { const th = localStorage.getItem('ohwa5-theme'); if (th) document.documentElement.dataset.theme = th; } catch (_) {}
@@ -51,18 +52,18 @@ try { const th = localStorage.getItem('ohwa5-theme'); if (th) document.documentE
 <!-- body.png(서 있기)를 자세 사진 색(평균 233,218,196)에 맞추는 색 행렬 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ohwa-warm" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0.95 0 0 0  0 0 0.895 0 0  0 0 0 1 0"/></filter></svg>
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="feel.js?v=1793973618"></script>
-<script src="Saju.js?v=1793973618"></script>
-<script src="Content.js?v=1793973618"></script>
+<script src="feel.js?v=1793975213"></script>
+<script src="Saju.js?v=1793975213"></script>
+<script src="Content.js?v=1793975213"></script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script type="text/babel" src="tweaks_panel.jsx"></script>
-<script type="text/babel" src="Ui.jsx?v=1793973618"></script>
-<script type="text/babel" src="ScreensA.jsx?v=1793973618"></script>
-<script type="text/babel" src="ScreensB.jsx?v=1793973618"></script>
-<script type="text/babel" src="ScreensC.jsx?v=1793973618"></script>
-<script type="text/babel" src="ScreensD.jsx?v=1793973618"></script>
+<script type="text/babel" src="Ui.jsx?v=1793975213"></script>
+<script type="text/babel" src="ScreensA.jsx?v=1793975213"></script>
+<script type="text/babel" src="ScreensB.jsx?v=1793975213"></script>
+<script type="text/babel" src="ScreensC.jsx?v=1793975213"></script>
+<script type="text/babel" src="ScreensD.jsx?v=1793975213"></script>
 <script type="text/babel">
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "theme": "studio",
@@ -70,20 +71,27 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "haptics": true
 }/*EDITMODE-END*/;
 
-// 화면을 누른 자리 보여 주기 — 누르면 동그라미가 퍼지고, 누르고 있는 동안 손끝 동그라미가 따라다닌다
-function useTouches() {
+// 화면을 누른 자리 보여 주기 (마우스로 보는 데모용) — 누르면 동그라미가 퍼지고, 누르고 있는 동안 손끝 동그라미가 따라다닌다.
+// 상태를 이 안에만 두어 누를 때마다 앱 전체가 다시 그려지지 않게 한다. 손가락으로 쓰는 진짜 폰에서는 끈다(손가락이 보이니까).
+const COARSE = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+function Touches() {
+  const host = React.useRef(null);
   const [ripples, setRipples] = React.useState([]);
   const [finger, setFinger] = React.useState(null);
-  const pos = (e) => { const r = e.currentTarget.getBoundingClientRect(), k = r.width / 390; return { x: (e.clientX - r.left) / k, y: (e.clientY - r.top) / k }; };
-  return { ripples, finger,
-    down: (e) => { const p = pos(e), id = Math.random(); setRipples(x => [...x.slice(-6), { id, ...p }]); setTimeout(() => setRipples(x => x.filter(y => y.id !== id)), 600); setFinger(p); },
-    move: (e) => { if (finger) setFinger(pos(e)); },
-    up: () => setFinger(null) };
-}
-function Touches({ t }) {
-  return <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 45 }}>
-    {t.ripples.map(r => <i key={r.id} style={{ position: 'absolute', left: r.x, top: r.y, width: 56, height: 56, borderRadius: '50%', border: '2.5px solid rgba(30,29,34,.35)', background: 'rgba(255,255,255,.25)', animation: 'ohwa-ripple 560ms var(--ease-calm) forwards' }} />)}
-    {t.finger && <i style={{ position: 'absolute', left: t.finger.x, top: t.finger.y, width: 34, height: 34, margin: '-17px 0 0 -17px', borderRadius: '50%', background: 'rgba(30,29,34,.14)', boxShadow: '0 0 0 2px rgba(255,255,255,.8)' }} />}
+  React.useEffect(() => {
+    const ph = host.current && host.current.parentElement; if (!ph || COARSE) return;
+    let held = false;
+    const pos = (e) => { const r = ph.getBoundingClientRect(), k = r.width / 390; return { x: (e.clientX - r.left) / k, y: (e.clientY - r.top) / k }; };
+    const down = (e) => { const p = pos(e), id = Math.random(); held = true; setRipples(x => [...x.slice(-6), { id, ...p }]); setTimeout(() => setRipples(x => x.filter(y => y.id !== id)), 600); setFinger(p); };
+    const move = (e) => { if (held) setFinger(pos(e)); };
+    const up = () => { held = false; setFinger(null); };
+    ph.addEventListener('pointerdown', down, true); ph.addEventListener('pointermove', move, true);
+    ph.addEventListener('pointerup', up, true); ph.addEventListener('pointercancel', up, true); ph.addEventListener('pointerleave', up);
+    return () => { ph.removeEventListener('pointerdown', down, true); ph.removeEventListener('pointermove', move, true); ph.removeEventListener('pointerup', up, true); ph.removeEventListener('pointercancel', up, true); ph.removeEventListener('pointerleave', up); };
+  }, []);
+  return <div ref={host} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 45 }}>
+    {ripples.map(r => <i key={r.id} style={{ position: 'absolute', left: r.x, top: r.y, width: 56, height: 56, borderRadius: '50%', border: '2.5px solid rgba(30,29,34,.35)', background: 'rgba(255,255,255,.25)', animation: 'ohwa-ripple 560ms var(--ease-calm) forwards' }} />)}
+    {finger && <i style={{ position: 'absolute', left: finger.x, top: finger.y, width: 34, height: 34, margin: '-17px 0 0 -17px', borderRadius: '50%', background: 'rgba(30,29,34,.14)', boxShadow: '0 0 0 2px rgba(255,255,255,.8)' }} />}
   </div>;
 }
 
@@ -136,15 +144,14 @@ function App() {
     records: <RecordsScreen charge={charge} fills={fills} />,
     diagnose: <DiagnoseScreen go={go} fills={fills} addFill={addFill} />,
   };
-  const touch = useTouches();
   return <>
         <div className="phone" data-screen-label={screen} style={TALL ? { height: TALL } : undefined}
-          onPointerDownCapture={touch.down} onPointerMoveCapture={touch.move} onPointerUpCapture={touch.up} onPointerCancelCapture={touch.up} onPointerLeave={touch.up}>
+         >
       <div className="island" />
       <div className="sb"><StatusBar /></div>
       <div className="body" key={screen}>{V[screen]}</div>
       {tabs.includes(screen) && <Dock tab={screen} onTab={go} />}
-      <Touches t={touch} />
+      <Touches />
     </div>
     <TweaksPanel>
       <TweakSection label="화면">

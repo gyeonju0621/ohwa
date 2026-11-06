@@ -221,7 +221,7 @@ function TodayScreen({ go, fills, addFill }) {
       <div style={{ position: 'absolute', left: 12, right: 12, bottom: 14, display: 'flex', gap: 6 }}>
         {EL_ORDER.map(e => { const on = e === sel;
           return <button key={e} className={'press' + (on ? '' : ' chipglass')} aria-label={`${EL[e].ko} 기운`} onClick={() => pick(e)} style={{ position: 'relative', flex: 1, height: 52, borderRadius: 18, cursor: 'pointer', fontFamily: 'var(--font-sans)',
-            border: on ? 0 : undefined, background: on ? 'var(--card)' : undefined, boxShadow: on ? `0 0 0 2px ${INK}, 0 10px 18px -12px rgba(0,0,0,.4)` : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, padding: 0, transition: 'all 300ms var(--ease-jelly)', transform: on ? 'translateY(-3px)' : 'none' }}>
+            border: on ? 0 : undefined, background: on ? 'var(--card)' : undefined, boxShadow: on ? `0 0 0 2px ${INK}, 0 10px 18px -12px rgba(0,0,0,.4)` : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, padding: 0, transition: 'transform 180ms var(--ease-jelly), box-shadow 120ms', transform: on ? 'translateY(-3px)' : 'none' }}>
             <img src={EL[e].piece} alt="" style={{ width: 26, height: 26, objectFit: 'contain' }} /><span style={{ fontSize: 13, fontWeight: 800, color: INK }}>{EL[e].ko}</span>
             {e === rec && <span style={{ position: 'absolute', top: -8, right: -2, height: 16, padding: '0 5px', borderRadius: 8, background: INK, color: 'var(--on-ink)', fontSize: 9.5, fontWeight: 800, lineHeight: '16px' }}>추천</span>}
           </button>; })}
