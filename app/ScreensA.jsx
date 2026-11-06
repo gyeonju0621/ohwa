@@ -182,7 +182,9 @@ function TodayScreen({ go, fills, addFill }) {
   // 이번 주 7일 (오늘은 실제로 채운 양) + 꽉 채운 연속 날
   const week = S().history(7).map(d => d.fill === null ? { ...d, fill: charge } : d);
   let streak = 0; for (let k = week.length - 1; k >= 0; k--) { if (week[k].fill >= 30) streak++; else if (k === week.length - 1) continue; else break; }
-  const add = () => addFill(sel, 1);
+  // 조각이 날아오는 출발점(말랑이 배 기준): 몸을 누르면 아래에서, 기운 칩을 누르면 그 칩에서
+  const [from, setFrom] = React.useState({ x: 0, y: 150 });
+  const add = () => { setFrom({ x: 0, y: 150 }); addFill(sel, 1); };
   const prev = React.useRef(charge);
   React.useEffect(() => { // 10꾹을 넘기면 만세 모션이 끝난 뒤 새 이야기가 열린다
     const a = Math.floor(prev.current / 10), b = Math.floor(charge / 10); prev.current = charge;
@@ -192,7 +194,9 @@ function TodayScreen({ go, fills, addFill }) {
     const k = 'ohwa5-hello-' + dayKey(); let seen = false; try { seen = !!localStorage.getItem(k); localStorage.setItem(k, '1'); } catch (_) {}
     if (!seen && !new URLSearchParams(location.search).get('nohello')) setTimeout(() => setStory(0), 1100);
   }, []);
-  const pick = (e) => { setSel(e); feel('tick', { pitch: EL[e].pitch }); buzz(5); };
+  // 2026-11-07: 기운 칩을 누르면 고르기만 하지 않고 바로 그 조각이 칩에서 배로 쏙 (예전엔 칩을 고른 뒤 몸을 다시 눌러야 했음)
+  // 칩 가운데 x = 장면 가운데에서 (i-2)×66.8px, 칩은 말랑이 발밑보다 약 38px 아래 → 배 가운데 기준 약 +92px
+  const pick = (e, i) => { setSel(e); setFrom({ x: (i - 2) * 66.8, y: 92 }); addFill(e, 1); feel('tick', { pitch: EL[e].pitch }); buzz(6); };
   const hello = new Date().getHours() < 12 ? '좋은 아침이에요' : new Date().getHours() < 18 ? '좋은 오후예요' : '편안한 저녁이에요';
   return <div style={fadeIn}>
     <div ref={scroller} style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 120, boxSizing: 'border-box' }}>
@@ -215,12 +219,12 @@ function TodayScreen({ go, fills, addFill }) {
       </div>
       {/* 말랑이 */}
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 78 }}>
-        <Malangi h={232} parts={fills} el={sel} pedestal={false} onPress={add} onHold={add} enter flyFrom={{ x: 0, y: 150 }} />
+        <Malangi h={232} parts={fills} el={sel} pedestal={false} onPress={add} onHold={add} enter flyFrom={from} />
       </div>
       {/* 기운 고르기 — 유리 칩 */}
       <div style={{ position: 'absolute', left: 12, right: 12, bottom: 14, display: 'flex', gap: 6 }}>
-        {EL_ORDER.map(e => { const on = e === sel;
-          return <button key={e} className={'press' + (on ? '' : ' chipglass')} aria-label={`${EL[e].ko} 기운`} onClick={() => pick(e)} style={{ position: 'relative', flex: 1, height: 52, borderRadius: 18, cursor: 'pointer', fontFamily: 'var(--font-sans)',
+        {EL_ORDER.map((e, i) => { const on = e === sel;
+          return <button key={e} className={'press' + (on ? '' : ' chipglass')} aria-label={`${EL[e].ko} 기운 채우기`} onClick={() => pick(e, i)} style={{ position: 'relative', flex: 1, height: 52, borderRadius: 18, cursor: 'pointer', fontFamily: 'var(--font-sans)',
             border: on ? 0 : undefined, background: on ? 'var(--card)' : undefined, boxShadow: on ? `0 0 0 2px ${INK}, 0 10px 18px -12px rgba(0,0,0,.4)` : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, padding: 0, transition: 'transform 180ms var(--ease-jelly), box-shadow 120ms', transform: on ? 'translateY(-3px)' : 'none' }}>
             <img src={EL[e].piece} alt="" style={{ width: 26, height: 26, objectFit: 'contain' }} /><span style={{ fontSize: 13, fontWeight: 800, color: INK }}>{EL[e].ko}</span>
             {e === rec && <span style={{ position: 'absolute', top: -8, right: -2, height: 16, padding: '0 5px', borderRadius: 8, background: INK, color: 'var(--on-ink)', fontSize: 9.5, fontWeight: 800, lineHeight: '16px' }}>추천</span>}
