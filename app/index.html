@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4ECE0">
+<meta name="description" content="태어난 날로 보는 다섯 기운, 말랑이에게 채우는 하루 — 오화 五和">
+<meta property="og:title" content="오화 五和 — 말랑이 감정케어">
+<meta property="og:description" content="태어난 날로 보는 다섯 기운, 말랑이에게 채우는 하루">
+<meta property="og:image" content="../assets/malangi/body.png">
+<title>오화 — App</title>
+<link rel="icon" href="../assets/logo/ohwa-seal.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../colors_and_type.css?v=1793973618">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{background:#D8C9B6;display:flex;align-items:center;justify-content:center}
+  [data-theme="night"] body{background:#100C0A}
+  #root{transform-origin:center}
+  .phone{width:390px;height:844px;border-radius:56px;background:var(--bg);position:relative;overflow:hidden;
+    box-shadow:0 0 0 10px #1B1A1E, 0 40px 90px rgba(35,30,41,.35)}
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:34px;border-radius:20px;background:#000;z-index:41}
+  .body{position:absolute;top:50px;left:0;right:0;bottom:0}
+  .sb{position:absolute;top:0;left:0;right:0;z-index:40;pointer-events:none}
+  ::-webkit-scrollbar{display:none}
+  /* 진짜 폰(좁은 화면)에서는 테두리 없이 화면을 꽉 채운다: 390px 캔버스를 화면 폭에 맞춰 키우고, 높이는 화면 높이에 맞춤 */
+  html.m body{display:block;background:var(--bg)}
+  html.m #root{position:absolute;left:0;top:0;transform-origin:0 0}
+  html.m .phone{border-radius:0;box-shadow:none;height:var(--ph,844px)}
+  html.m .island,html.m .sb{display:none}
+  html.m .body{top:calc(env(safe-area-inset-top, 0px) + 14px)}
+  /* 스크립트가 준비되기 전 잠깐 보이는 화면 */
+  #root:not(:empty) + .boot{display:none}
+  .boot{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg,#F4ECE0);font:700 13px/1 system-ui,sans-serif;color:#9A8B7E}
+  .boot img{width:46px;height:74px;animation:ohwa-boot 1.4s ease-in-out infinite}
+  @keyframes ohwa-boot{0%,100%{transform:scale(1)}50%{transform:scale(.9,1.06)}}
+</style>
+</head>
+<body class="ohwa">
+<div id="root"></div><div class="boot"><img src="../assets/logo/ohwa-seal.svg" alt="五和">말랑이 깨우는 중…</div>
+<script>
+// 화면 맞추기 (React보다 먼저): 넓은 화면 = 폰 모형 가운데, 좁은 화면(진짜 폰) = 꽉 채움
+function fit() {
+  const root = document.getElementById('root'), de = document.documentElement, m = innerWidth <= 540;
+  de.classList.toggle('m', m);
+  if (m) { const s = innerWidth / 390; root.style.transform = 'scale(' + s + ')'; de.style.setProperty('--ph', (innerHeight / s) + 'px'); }
+  else root.style.transform = 'scale(' + Math.min(1, (innerHeight - 40) / 864, (innerWidth - 40) / 410) + ')';
+}
+addEventListener('resize', fit); fit();
+try { const th = localStorage.getItem('ohwa5-theme'); if (th) document.documentElement.dataset.theme = th; } catch (_) {}
+</script>
+<!-- body.png(서 있기)를 자세 사진 색(평균 233,218,196)에 맞추는 색 행렬 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ohwa-warm" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0.95 0 0 0  0 0 0.895 0 0  0 0 0 1 0"/></filter></svg>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="feel.js?v=1793973618"></script>
+<script src="Saju.js?v=1793973618"></script>
+<script src="Content.js?v=1793973618"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks_panel.jsx"></script>
+<script type="text/babel" src="Ui.jsx?v=1793973618"></script>
+<script type="text/babel" src="ScreensA.jsx?v=1793973618"></script>
+<script type="text/babel" src="ScreensB.jsx?v=1793973618"></script>
+<script type="text/babel" src="ScreensC.jsx?v=1793973618"></script>
+<script type="text/babel" src="ScreensD.jsx?v=1793973618"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "studio",
+  "sound": true,
+  "haptics": true
+}/*EDITMODE-END*/;
+
+// 화면을 누른 자리 보여 주기 — 누르면 동그라미가 퍼지고, 누르고 있는 동안 손끝 동그라미가 따라다닌다
+function useTouches() {
+  const [ripples, setRipples] = React.useState([]);
+  const [finger, setFinger] = React.useState(null);
+  const pos = (e) => { const r = e.currentTarget.getBoundingClientRect(), k = r.width / 390; return { x: (e.clientX - r.left) / k, y: (e.clientY - r.top) / k }; };
+  return { ripples, finger,
+    down: (e) => { const p = pos(e), id = Math.random(); setRipples(x => [...x.slice(-6), { id, ...p }]); setTimeout(() => setRipples(x => x.filter(y => y.id !== id)), 600); setFinger(p); },
+    move: (e) => { if (finger) setFinger(pos(e)); },
+    up: () => setFinger(null) };
+}
+function Touches({ t }) {
+  return <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 45 }}>
+    {t.ripples.map(r => <i key={r.id} style={{ position: 'absolute', left: r.x, top: r.y, width: 56, height: 56, borderRadius: '50%', border: '2.5px solid rgba(30,29,34,.35)', background: 'rgba(255,255,255,.25)', animation: 'ohwa-ripple 560ms var(--ease-calm) forwards' }} />)}
+    {t.finger && <i style={{ position: 'absolute', left: t.finger.x, top: t.finger.y, width: 34, height: 34, margin: '-17px 0 0 -17px', borderRadius: '50%', background: 'rgba(30,29,34,.14)', boxShadow: '0 0 0 2px rgba(255,255,255,.8)' }} />}
+  </div>;
+}
+
+// 개발용: ?tall=1800 이면 폰을 길게 (긴 화면 캡처용)
+const TALL = +new URLSearchParams(location.search).get('tall') || 0;
+// NFC 스티커 링크: …/app/?tag=OH-0001 — 읽은 뒤 주소에서 지워서 새로고침해도 다시 안 열리게
+const TAG = (() => {
+  const q = new URLSearchParams(location.search), v = (q.get('tag') || '').trim();
+  if (!q.has('tag')) return null;
+  q.delete('tag'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+  return /^[A-Za-z0-9-]{2,24}$/.test(v) ? v.toUpperCase() : null;
+})();
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  // 앱을 열면 늘 로고(splash)부터. 개발용 ?screen=… 이면 그 화면으로 바로
+  const [screen, setScreen] = React.useState(() => (new URLSearchParams(location.search).get('screen') || 'splash').replace(/^(custom|charge)$/, 'today'));
+  const firstRun = React.useRef(!isOnboarded());
+  // 오늘 배에 넣은 조각들(오행 키 배열, 최대 30): 날짜 + 사람(생일)마다 따로 저장
+  const fkey = () => `ohwa5-fills-${OhwaSaju.TODAY.toDateString()}-${OhwaSaju.profile.seed}`;
+  const readFills = () => { try { const a = JSON.parse(localStorage.getItem(fkey())); return Array.isArray(a) ? a.slice(0, 30) : []; } catch (_) { return []; } };
+  const [fills, setFills] = React.useState(readFills);
+  const addFill = React.useCallback((el, n = 1) => setFills(f => {
+    // 30개가 꽉 찬 뒤에도 다른 기운을 고르면 그 기운이 들어간다: 가장 오래된 조각이 빠지고 새 조각이 들어옴 (개수는 30 그대로)
+    // 배에 보이는 마지막 5개가 이미 모두 그 기운이면 바꿀 게 없으니 그대로
+    let v;
+    if (f.length >= 30) { if (f.slice(-5).every(x => x === el)) return f; v = [...f.slice(1), el]; }
+    else v = [...f, ...Array(n).fill(el)].slice(0, 30);
+    if (Math.floor(v.length / 10) > Math.floor(f.length / 10)) { buzz([12, 40, 12]); }
+    try { localStorage.setItem(fkey(), JSON.stringify(v)); } catch (_) {}
+    return v;
+  }), []);
+  const charge = fills.length;
+  const [theme] = useTheme();   // 낮/밤은 화면의 해·달 버튼(ThemeButton)과 여기 Tweaks가 같은 값을 쓴다
+  React.useEffect(() => { OhwaFeel.enabled = t.sound; OhwaFeel.haptics = t.haptics; }, [t.sound, t.haptics]);
+  const tabs = ['today', 'saju', 'records'];
+  const go = (s) => { setScreen(s); if (tabs.includes(s)) localStorage.setItem('ohwa5-screen', s); };
+  const lastTab = () => { const s = localStorage.getItem('ohwa5-screen'); return tabs.includes(s) ? s : 'today'; };
+  const restart = () => { setAuth(null); setOnboarded(false); firstRun.current = true; go('splash'); };
+  // 태그로 열었고 이미 설정을 마친 사람: 그 말랑이로 기록하고 오늘의 기분 진단을 바로 연다
+  const tagReady = TAG && getAuth() && isOnboarded();
+  React.useEffect(() => { if (tagReady) setAuth({ ...getAuth(), device: TAG }); }, []);
+  const V = {
+    splash: <SplashScreen quick={!!tagReady} onDone={() => go(!getAuth() ? 'login' : !isOnboarded() ? 'intro' : TAG ? 'diagnose' : lastTab())} />,
+    login: <LoginScreen onDone={() => go(isOnboarded() ? lastTab() : 'intro')} />,
+    intro: <IntroScreen onDone={() => go('onboard')} />,
+    connect: <ConnectScreen tag={TAG} onDone={() => { firstRun.current = false; go('today'); }} />,
+    onboard: <OnboardScreen cta={firstRun.current ? '이 기운으로 시작하기' : undefined} onDone={() => { setFills(readFills()); go(firstRun.current ? 'connect' : 'saju'); }} />,
+    today: <TodayScreen go={go} fills={fills} addFill={addFill} />,
+    saju: <SajuScreen go={go} />,
+    records: <RecordsScreen charge={charge} fills={fills} />,
+    diagnose: <DiagnoseScreen go={go} fills={fills} addFill={addFill} />,
+  };
+  const touch = useTouches();
+  return <>
+        <div className="phone" data-screen-label={screen} style={TALL ? { height: TALL } : undefined}
+          onPointerDownCapture={touch.down} onPointerMoveCapture={touch.move} onPointerUpCapture={touch.up} onPointerCancelCapture={touch.up} onPointerLeave={touch.up}>
+      <div className="island" />
+      <div className="sb"><StatusBar /></div>
+      <div className="body" key={screen}>{V[screen]}</div>
+      {tabs.includes(screen) && <Dock tab={screen} onTab={go} />}
+      <Touches t={touch} />
+    </div>
+    <TweaksPanel>
+      <TweakSection label="화면">
+        <TweakRadio label="테마" value={theme} options={[{ value: 'studio', label: '낮 (아이보리)' }, { value: 'night', label: '밤 (코코아)' }]} onChange={v => applyTheme(v)} />
+        <TweakButton label="처음부터 보기 (로그아웃)" secondary onClick={restart} />
+        <TweakButton label="생일 다시 입력" secondary onClick={() => go('onboard')} />
+      </TweakSection>
+      <TweakSection label="손맛">
+        <TweakToggle label="효과음" value={t.sound} onChange={v => setTweak('sound', v)} />
+        <TweakToggle label="진동" value={t.haptics} onChange={v => setTweak('haptics', v)} />
+      </TweakSection>
+    </TweaksPanel>
+  </>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+fit();
+</script>
+</body>
+</html>

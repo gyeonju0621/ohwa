@@ -1,0 +1,205 @@
+/* ============================================================
+   오화 五和 — Foundations v5 · "토이 스튜디오"
+   주인공은 3D 젤리 피규어. 화면은 피규어를 올려두는 따뜻한 스튜디오(쇼룸)이고,
+   UI는 그 위에 떠 있는 유리 캡슐·둥근 버튼(게임 HUD 문법).
+   Fonts: Pretendard Variable (한글 UI·디스플레이) · Unbounded (숫자·라틴 포인트) · Noto Sans KR (한자)
+   Theme: <html data-theme="studio"> (default) | "night"
+   ============================================================ */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Noto+Sans+KR:wght@500;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500&text=%E4%BA%94%E5%92%8C&display=swap");
+
+:root, [data-theme="studio"] {
+  /* ---------- Studio neutrals (피규어 촬영 배경과 같은 웜 퍼티) ---------- */
+  --bg:       #F4ECE0;      /* v12: 그림책 같은 아이보리 — 오행 색이 많아도 따뜻하게 받쳐 준다 */
+  --bg-hi:    #FBF6EE;      /* spotlight center */
+  --floor:    #E6D9C6;      /* floor / pedestal side */
+  --ink:      #3D2F28;      /* 코코아 브라운 잉크 */
+  --fg1:      #3D2F28;
+  --fg2:      #6B5B50;
+  --fg3:      #A08F80;
+  --fg4:      #D2C4B3;
+  --line:     rgba(90,62,40,.10);
+
+  /* ---------- Glass HUD ---------- */
+  --glass:        rgba(255,250,242,.9);
+  --glass-strong: #FFFAF2;
+  --glass-edge:   rgba(255,255,255,.9);
+  --glass-blur:   blur(20px) saturate(160%);
+  --shadow-float: 0 1px 0 rgba(255,255,255,.9) inset, 0 18px 36px -18px rgba(110,75,45,.38);
+  --shadow-chip:  0 1px 0 rgba(255,255,255,.9) inset, 0 6px 14px -8px rgba(110,75,45,.38);
+
+  /* ---------- 오행 (피규어에서 뽑은 색 · 오행을 가리킬 때만) ---------- */
+  --wood:  #63D957; --wood-2:  #DDF6D9; --wood-ink:  #1E7318;
+  --fire:  #FF626B; --fire-2:  #FFE0E2; --fire-ink:  #BC2A38;
+  --earth: #FFC247; --earth-2: #FFF0CC; --earth-ink: #855700;
+  --metal: #B5A0F4; --metal-2: #ECE6FD; --metal-ink: #6A4FC9;
+  --water: #42BCEB; --water-2: #D3F0FB; --water-ink: #0B6890;
+
+  /* ---------- Action ---------- */
+  --primary: #3D2F28; --on-primary: #FFF8EE;
+  --error: #D0503C;
+
+  /* ---------- Type ---------- */
+  --font-sans:  "Pretendard Variable", "Pretendard", -apple-system, sans-serif;
+  --font-num:   "Unbounded", "Pretendard Variable", sans-serif;
+  --font-seal:  "Noto Serif KR", "Nanum Myeongjo", "Batang", "AppleMyungjo", serif;
+  --seal:       #BE1E2D;   /* 로고 낙관 五和 — 로고에만 */
+  --font-hanja: "Noto Sans KR", "Pretendard Variable", sans-serif;
+
+  --t-hero: 36px; --t-h1: 26px; --t-h2: 20px; --t-h3: 17px;
+  --t-body: 15px; --t-small: 13px; --t-caption: 11px;
+
+  /* ---------- Shape ---------- */
+  --r-sm: 14px; --r-md: 20px; --r-lg: 28px; --r-xl: 36px; --r-pill: 999px;
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px;
+  --gutter: 20px;
+
+  /* ---------- Motion: 꾹 → 출렁 ---------- */
+  --ease-squish: cubic-bezier(.3,0,.2,1);
+  --ease-jelly:  cubic-bezier(.18,1.6,.4,1);
+  --ease-calm:   cubic-bezier(.4,0,.2,1);
+  --d-press: 90ms; --d-jelly: 650ms; --d-fade: 300ms;
+}
+
+[data-theme="night"] {
+  /* v13 "코코아 나이트" — 아이보리 낮 톤을 그대로 어둡게: 따뜻한 갈색 밤, 글자는 크림색 */
+  --bg:    #1E1915;
+  --bg-hi: #2A231E;
+  --floor: #2B231E;
+  --ink:   #F4EBE0;
+  --fg1:   #F4EBE0;
+  --fg2:   #CBBDAF;
+  --fg3:   #968676;
+  --fg4:   #5E5248;
+  --line:  rgba(255,236,215,.09);
+  --glass:        rgba(44,36,31,.9);
+  --glass-strong: #2A231E;
+  --glass-edge:   rgba(255,236,215,.08);
+  --shadow-float: 0 1px 0 rgba(255,236,215,.06) inset, 0 18px 36px -16px rgba(0,0,0,.65);
+  --shadow-chip:  0 1px 0 rgba(255,236,215,.06) inset, 0 6px 14px -8px rgba(0,0,0,.65);
+  --primary: #F4EBE0; --on-primary: #2A221D;
+  --wood-2: #22301F; --fire-2: #3A1F21; --earth-2: #3A2E17; --metal-2: #2B2540; --water-2: #15303B;
+  --wood-ink: #8BEA80; --fire-ink: #FF9AA1; --earth-ink: #FFD47A; --metal-ink: #CDBEFF; --water-ink: #7FD6F5;
+}
+
+/* ---------- Base ---------- */
+body.ohwa { font-family: var(--font-sans); background: var(--bg); color: var(--fg2); font-size: var(--t-body); line-height: 1.5;
+  word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.02em; }
+.hero { font-size: var(--t-hero); line-height: 1.12; font-weight: 800; color: var(--fg1); letter-spacing: -0.045em; }
+.h1   { font-size: var(--t-h1); line-height: 1.2; font-weight: 800; color: var(--fg1); letter-spacing: -0.04em; }
+.h2   { font-size: var(--t-h2); line-height: 1.3; font-weight: 700; color: var(--fg1); letter-spacing: -0.03em; }
+.h3   { font-size: var(--t-h3); line-height: 1.4; font-weight: 700; color: var(--fg1); }
+.p    { font-size: var(--t-body); line-height: 1.55; color: var(--fg2); }
+.small{ font-size: var(--t-small); line-height: 1.45; color: var(--fg3); font-weight: 500; }
+.caption { font-size: var(--t-caption); color: var(--fg3); font-weight: 600; letter-spacing: 0; }
+.num  { font-family: var(--font-num); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.hanja { font-family: var(--font-hanja); font-weight: 900; letter-spacing: 0; }
+
+/* ---------- Studio backdrop: 스윕 + 스포트라이트 ---------- */
+.studio { position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(60% 42% at 50% 44%, var(--bg-hi) 0%, transparent 70%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg) 62%, var(--floor) 100%); }
+.studio .tint { position: absolute; left: 50%; top: 44%; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%;
+  filter: blur(60px); opacity: .18; transition: background 900ms var(--ease-calm); }
+[data-theme="night"] .studio .tint { opacity: .4; }
+
+/* ---------- Glass HUD surface ---------- */
+.glass { background: var(--glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge); box-shadow: var(--shadow-float); }
+
+/* ---------- Pressable: 꾹 들어가고 천천히 출렁 ---------- */
+.press { transition: transform var(--d-jelly) var(--ease-jelly); -webkit-tap-highlight-color: transparent; user-select: none; cursor: pointer; }
+.press:active { transform: scale(.94); transition: transform var(--d-press) var(--ease-squish); }
+
+/* ---------- Primary capsule ---------- */
+.cta { height: 58px; padding: 0 28px; border: 0; border-radius: var(--r-pill); display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: var(--font-sans); font-size: 16px; font-weight: 700; letter-spacing: -0.02em; color: var(--on-primary); background: var(--primary);
+  box-shadow: 0 14px 26px -14px rgba(34,31,38,.7); white-space: nowrap; }
+.cta.ghost { color: var(--fg1); background: var(--glass-strong); box-shadow: var(--shadow-chip); border: 1px solid var(--glass-edge); }
+.cta[disabled] { opacity: .35; pointer-events: none; }
+
+/* ---------- Round HUD button ---------- */
+.orb { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: var(--fg1);
+  background: var(--glass-strong); border: 1px solid var(--glass-edge); box-shadow: var(--shadow-chip); }
+
+@keyframes ohwa-spin { to { transform: rotate(360deg); } }
+@keyframes ohwa-in   { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes ohwa-pop  { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes ohwa-idle { 0%,100% { transform: translateY(0) scale(1,1); } 50% { transform: translateY(-3px) scale(.985,1.015); } }
+@keyframes ohwa-fly  { 0% { transform: translate(0,0) scale(.6); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(.25); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; } }
+
+/* 하얀 말랑이: 배에서 조각이 뿅 / 머리 위 조각 둥둥 */
+@keyframes ohwa-bellypop { 0% { transform: translate(var(--fx), var(--fy)) rotate(0deg) scale(.15); opacity: 0; } 35% { opacity: 1; } 70% { transform: rotate(var(--rot)) scale(1.22); } 100% { transform: rotate(var(--rot)) scale(1); opacity: .9; } }
+@keyframes ohwa-bob { 0%,100% { transform: translateY(0) rotate(var(--r0, 0deg)); } 50% { transform: translateY(-9px) rotate(calc(var(--r0, 0deg) * -1)); } }
+
+/* ---------- v6 "행택" — 평평한 색 블록 + 흰 카드 (오아리 행택에서) ---------- */
+:root, [data-theme="studio"] { --card: #FFFAF2; --card-line: rgba(120,88,58,.10);
+  /* 명암: 위는 밝은 테두리, 아래는 살짝 어두운 턱 + 따뜻한 그림자 → 종이 카드 같은 두께 */
+  --shadow-card: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -3px 0 rgba(120,88,58,.06), 0 16px 30px -20px rgba(110,75,45,.5); }
+[data-theme="night"] { --card: #29221D; --card-line: rgba(255,236,215,.07);
+  --shadow-card: inset 0 1px 0 rgba(255,236,215,.06), inset 0 -3px 0 rgba(0,0,0,.2), 0 16px 30px -18px rgba(0,0,0,.7); }
+
+/* v13 테마 변수 — 화면 코드의 색은 전부 이 변수로 (낮 = 아이보리, 밤 = 코코아) */
+:root, [data-theme="studio"] {
+  --ink-strong: #3D2F28; --on-ink: #FFF8EE;            /* 무대 위 글자 · 진한 버튼 위 글자 */
+  --tint-base: #FFF6EA; --scene-top: #FFF9F1;           /* 오행 색을 섞는 바탕 · 장면 맨 위 */
+  --chip-bg: rgba(255,250,242,.9); --chip-bg-soft: rgba(255,250,242,.62);
+  --dock-bg: #3D2F28; --dock-on: #FFF6EA; --dock-on-ink: #3D2F28;
+  --stage-veil: linear-gradient(180deg, rgba(255,249,240,.92) 0%, rgba(255,247,236,.62) 48%, rgba(255,245,232,.2) 100%);
+}
+[data-theme="night"] {
+  --ink-strong: #F4EBE0; --on-ink: #2A221D;
+  --tint-base: #2A231E; --scene-top: #2C2520;
+  --chip-bg: rgba(56,46,40,.92); --chip-bg-soft: rgba(56,46,40,.55);
+  --dock-bg: #120E0C; --dock-on: #F4EBE0; --dock-on-ink: #2A221D;
+  --stage-veil: linear-gradient(180deg, rgba(30,25,21,.9) 0%, rgba(30,25,21,.62) 48%, rgba(30,25,21,.26) 100%);
+}
+.card { background: var(--card); border-radius: 28px; box-shadow: var(--shadow-card); border: 1px solid var(--card-line); }
+.stage { position: relative; overflow: hidden; border-radius: 0 0 40px 40px; color: var(--ink-strong); }
+/* 2026-11-06: + 표시는 사용자 요청으로 없앰 (낮·밤 모두) */
+.tagplus { display: none !important; }
+.tagplus { position: absolute; width: 14px; height: 14px; pointer-events: none; }
+.tagplus::before, .tagplus::after { content: ""; position: absolute; background: rgba(255,255,255,.75); border-radius: 2px; }
+.tagplus::before { left: 6px; top: 0; width: 2px; height: 14px; } .tagplus::after { top: 6px; left: 0; height: 2px; width: 14px; }
+.bubble { position: absolute; z-index: 6; background: #fff; color: #221F26; border-radius: 18px; padding: 9px 13px; font-size: 13px; font-weight: 700; letter-spacing: -.02em; box-shadow: 0 10px 22px -12px rgba(40,30,25,.45); white-space: nowrap; }
+.bubble::after { content: ""; position: absolute; left: 22px; bottom: -7px; width: 14px; height: 14px; background: #fff; transform: rotate(45deg); border-radius: 3px; }
+@keyframes ohwa-talk { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-4px) rotate(1deg); } }
+.bubble.left::after { left: auto; right: 20px; }
+
+/* ---------- v8 "원더" 톤 — 색 블록을 흰색→파스텔 그라데이션으로, 말랑이 모션 ---------- */
+.stage::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: var(--stage-veil); }
+.stage .tagplus::before, .stage .tagplus::after { background: rgba(255,255,255,.95); }
+.scene { position: relative; overflow: hidden; border-radius: 34px; }
+.chipglass { background: var(--chip-bg-soft); -webkit-backdrop-filter: blur(14px) saturate(150%); backdrop-filter: blur(14px) saturate(150%); border: 1px solid var(--glass-edge); }
+.roundbtn { width: 44px; height: 44px; border-radius: 22px; border: 0; display: grid; place-items: center; cursor: pointer; background: var(--card); color: var(--ink-strong); box-shadow: var(--shadow-card); }
+.roundbtn.dark { background: var(--ink-strong); color: var(--on-ink); }
+@keyframes ohwa-float  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes ohwa-shadow { 0%,100% { transform: translateX(-50%) scale(1); opacity: .9; } 50% { transform: translateX(-50%) scale(.78); opacity: .55; } }
+@keyframes ohwa-drop   { 0% { transform: translateY(-260px) scale(.9,1.1); } 55% { transform: translateY(0) scale(1.18,.8); } 72% { transform: translateY(-26px) scale(.94,1.06); } 86% { transform: translateY(0) scale(1.05,.95); } 100% { transform: none; } }
+@keyframes ohwa-hop    { 0% { transform: none; } 25% { transform: translateY(4px) scale(1.12,.86); } 55% { transform: translateY(-46px) scale(.92,1.1); } 80% { transform: translateY(0) scale(1.1,.9); } 100% { transform: none; } }
+@keyframes ohwa-posepop{ 0% { transform: scale(.9,1.08); } 55% { transform: scale(1.06,.95); } 100% { transform: none; } }
+@keyframes ohwa-wiggle { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-7deg); } 45% { transform: rotate(6deg); } 70% { transform: rotate(-3deg); } }
+@keyframes ohwa-flyin  { 0% { transform: translate(var(--sx), var(--sy)) scale(.9) rotate(0); opacity: 0; } 12% { opacity: 1; }
+  50% { transform: translate(calc(var(--sx) * .45), calc(var(--sy) * .2 - 90px)) scale(1.1) rotate(120deg); } 100% { transform: translate(0,0) scale(.5) rotate(240deg); opacity: .2; } }
+@keyframes ohwa-burst  { 0% { transform: translate(-50%,-50%) rotate(var(--r)) translateY(0) scale(.3); opacity: 1; } 100% { transform: translate(-50%,-50%) rotate(var(--r)) translateY(var(--d)) scale(1); opacity: 0; } }
+@keyframes ohwa-zz     { 0% { transform: translate(0,0) scale(.6); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(18px,-40px) scale(1.1); opacity: 0; } }
+@keyframes ohwa-rise   { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes ohwa-slide  { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ohwa-heart { 0% { transform: translate(-50%, 0) scale(.3); opacity: 0; } 20% { opacity: 1; transform: translate(calc(-50% + var(--hx) * .3), -10px) scale(1.1); } 100% { transform: translate(calc(-50% + var(--hx)), -90px) scale(.9); opacity: 0; } }
+
+/* v10 반응 모션 */
+@keyframes ohwa-spinjump { 0% { transform: none; } 20% { transform: translateY(4px) scale(1.1,.88); } 60% { transform: translateY(-50px) rotate(300deg) scale(.95,1.05); } 85% { transform: translateY(0) rotate(360deg) scale(1.08,.92); } 100% { transform: rotate(360deg); } }
+@keyframes ohwa-nod     { 0% { transform: none; } 30% { transform: rotate(-6deg) translateY(2px) scale(1.03,.96); } 65% { transform: rotate(3deg); } 100% { transform: none; } }
+@keyframes ohwa-giggle  { 0%,100% { transform: none; } 15% { transform: rotate(-5deg) scale(1.04,.96); } 30% { transform: rotate(5deg) scale(.97,1.03); } 45% { transform: rotate(-4deg); } 60% { transform: rotate(4deg); } 80% { transform: rotate(-2deg); } }
+@keyframes ohwa-land    { 0% { transform: translateY(-40px) scale(.94,1.08); } 40% { transform: translateY(0) scale(1.2,.78); } 62% { transform: translateY(-16px) scale(.95,1.06); } 80% { transform: translateY(0) scale(1.06,.94); } 100% { transform: none; } }
+@keyframes ohwa-dangle  { 0% { transform: rotate(-10deg); } 100% { transform: rotate(10deg); } }
+@keyframes ohwa-ripple  { 0% { transform: translate(-50%,-50%) scale(.3); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(1.6); opacity: 0; } }
+/* 시작 화면들 (ScreensD) */
+@keyframes ohwa-stamp    { 0% { transform: scale(1.9) rotate(-14deg); opacity: 0; } 55% { transform: scale(.9) rotate(2deg); opacity: 1; } 78% { transform: scale(1.04); } 100% { transform: none; opacity: 1; } }
+@keyframes ohwa-nfc      { 0% { transform: translate(-50%,-50%) scale(.42); opacity: .75; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 0; } }
+@keyframes ohwa-tapphone { 0%,100% { transform: translate(16px,-12px) rotate(14deg); } 38%,62% { transform: translate(-8px,10px) rotate(-3deg); } }
+[data-theme="night"] { --floor-glow: rgba(255,238,220,.07); }

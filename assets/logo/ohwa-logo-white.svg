@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 878 232" role="img" aria-label="OHWA 五和">
+  <title>OHWA 五和</title>
+  <g fill="#fff">
+    <path d="M2 122C2 74 34 42 82 42S162 74 162 122 130 202 82 202 2 170 2 122Z"/>
+    <path d="M203 44h55v69h19V44h56v155h-56v-75h-19v75h-55Z"/>
+    <path d="M370 44h189l-53 162-42-65-41 65Z"/>
+    <path d="M558 199 639 38l82 161Z"/>
+  </g>
+  <g fill="#BE1E2D">
+    <ellipse cx="808" cy="116" rx="66" ry="113" fill="none" stroke="#BE1E2D" stroke-width="1.8"/>
+    <text x="808" y="72" font-family="'Noto Serif KR','Nanum Myeongjo','Batang','AppleMyungjo',serif" font-weight="500" font-size="86" text-anchor="middle" dominant-baseline="central">五</text>
+    <text x="808" y="163" font-family="'Noto Serif KR','Nanum Myeongjo','Batang','AppleMyungjo',serif" font-weight="500" font-size="86" text-anchor="middle" dominant-baseline="central">和</text>
+  </g>
+</svg>
