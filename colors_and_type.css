@@ -208,3 +208,11 @@ html { touch-action: manipulation; }
 .scene, .stage, .clip { isolation: isolate; transform: translateZ(0); }
 .chipglass { -webkit-backdrop-filter: none; backdrop-filter: none; }
 @keyframes ohwa-breathe { 0%,100% { transform: none; } 50% { transform: scale(1.012, .992); } }
+/* 2026-11-06 '너무 빨리빨리 움직여' → 말랑이 반응 동작을 더 작고 느리게 (같은 이름으로 다시 정의, 뒤에 있는 게 이김) */
+@keyframes ohwa-drop   { 0% { transform: translateY(-140px) scale(.96,1.04); opacity: 0; } 20% { opacity: 1; } 60% { transform: translateY(0) scale(1.08,.92); } 80% { transform: translateY(-8px) scale(.98,1.02); } 100% { transform: none; } }
+@keyframes ohwa-hop    { 0% { transform: none; } 25% { transform: translateY(3px) scale(1.06,.94); } 55% { transform: translateY(-22px) scale(.97,1.04); } 80% { transform: translateY(0) scale(1.04,.96); } 100% { transform: none; } }
+@keyframes ohwa-posepop{ 0% { transform: scale(.96,1.04); } 55% { transform: scale(1.03,.98); } 100% { transform: none; } }
+@keyframes ohwa-wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-4deg); } 60% { transform: rotate(3deg); } 85% { transform: rotate(-1deg); } }
+@keyframes ohwa-nod    { 0% { transform: none; } 35% { transform: rotate(-4deg) translateY(2px) scale(1.02,.98); } 70% { transform: rotate(2deg); } 100% { transform: none; } }
+@keyframes ohwa-giggle { 0%,100% { transform: none; } 20% { transform: rotate(-3deg) scale(1.02,.98); } 45% { transform: rotate(3deg) scale(.99,1.01); } 70% { transform: rotate(-2deg); } }
+@keyframes ohwa-land   { 0% { transform: translateY(-24px) scale(.97,1.03); } 45% { transform: translateY(0) scale(1.1,.9); } 70% { transform: translateY(-6px) scale(.98,1.02); } 100% { transform: none; } }

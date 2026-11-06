@@ -183,7 +183,7 @@ function bodyTint(parts) {
 }
 
 /* 스프링 젤리 — 누름 깊이 q(+ 눌림, − 늘어남)를 물리로 굴린다 */
-function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 340, disabled, hang }) {
+function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 480, disabled, hang }) {
   const ref = React.useRef(null);
   const s = React.useRef({ q: 0, v: 0, sk: 0, sv: 0, held: false, t0: 0, dx: 0, dy: 0, x0: 0, y0: 0, raf: 0, last: 0, nextHold: 0, deep: false, peak: 0 });
   const cb = React.useRef({}); cb.current = { onPress, onHold, onRelease, disabled, pitch, hang };
@@ -194,20 +194,20 @@ function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 340, disa
   };
   const loop = (now) => {
     const o = s.current; const dt = Math.min(.032, (now - (o.last || now)) / 1000 || .016); o.last = now;
-    let target = 0, k = 240, c = 7.5;                 // 놓은 뒤: 덜 감쇠 → 출렁출렁
+    let target = 0, k = 110, c = 8.5;                 // 놓은 뒤: 천천히 한두 번 출렁 (2026-11-06: 폰에서 너무 빨라 보여 느리게)
     if (o.held) {
       const held = (now - o.t0) / 1000;
       target = .13 + .6 * (1 - Math.exp(-held * 1.6)); // 오래 누를수록 깊게 (최대 ≈ .73)
       if (o.dy < -8) target = -Math.min(1, -o.dy / 110) * .75;   // 위로 끌면 늘어남
-      k = 520; c = 30;
-      if (cb.current.hang) { target = -.2; k = 220; c = 9; }      // 대롱대롱: 매달려서 아래로 늘어남
+      k = 240; c = 26;
+      if (cb.current.hang) { target = -.2; k = 120; c = 9; }      // 대롱대롱: 매달려서 아래로 늘어남
       if (target > .55 && !o.deep && !cb.current.hang) { o.deep = true; feel('deep', { pitch: cb.current.pitch }); buzz(18); }
       if (o.snd) o.snd.set(cb.current.hang ? 0 : Math.max(0, o.q) / .73);   // 눌린 깊이만큼 뽀글뽀글
       o.peak = Math.max(o.peak, Math.abs(target));
     }
     o.v += (k * (target - o.q) - c * o.v) * dt; o.q += o.v * dt;
     const skT = o.held ? Math.max(-14, Math.min(14, -o.dx * .14)) : 0;
-    o.sv += (200 * (skT - o.sk) - 9 * o.sv) * dt; o.sk += o.sv * dt;
+    o.sv += (110 * (skT - o.sk) - 9 * o.sv) * dt; o.sk += o.sv * dt;
     paint();
     if (o.held || Math.abs(o.q) > .0008 || Math.abs(o.v) > .002 || Math.abs(o.sk) > .02) o.raf = requestAnimationFrame(loop);
     else { o.q = o.v = o.sk = o.sv = 0; o.raf = 0; o.last = 0; paint(); }
@@ -219,7 +219,7 @@ function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 340, disa
       e.preventDefault(); const o = s.current;
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
       Object.assign(o, { held: true, t0: performance.now(), x0: e.clientX, y0: e.clientY, dx: 0, dy: 0, deep: false, peak: 0 });
-      o.v -= 2.2;                                      // 톡 — 첫 순간 살짝 튕겨 들어감
+      o.v -= 1.3;                                      // 톡 — 첫 순간 살짝 튕겨 들어감
       // 꾹 누르고 있으면 0.48초 뒤부터 조각이 계속 (위로 끌어 늘리는 중엔 멈춤)
       clearTimeout(o.ht); clearInterval(o.hi);
       o.ht = setTimeout(() => { o.hi = setInterval(() => { if (o.held && o.dy > -8 && cb.current.onHold) { cb.current.onHold(); buzz(8); } }, holdEvery); }, 480);
@@ -233,7 +233,7 @@ function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 340, disa
     onPointerUp: () => {
       const o = s.current; if (!o.held) return; o.held = false; clearTimeout(o.ht); clearInterval(o.hi); clearTimeout(o.st);
       if (o.snd) { o.snd.stop(); o.snd = null; }
-      o.v -= 1.5 + o.peak * 4;                          // 깊게 눌렀을수록 크게 튀어 오름
+      o.v -= .9 + o.peak * 2.4;                          // 깊게 눌렀을수록 크게 튀어 오름
       // 소리: 짧게 톡 = 가벼운 "퐁" / 오래 꾹 = 깊이만큼 출렁 "뽀옹" / 매달렸다 놓으면 Malangi가 "철퍽"을 낸다
       if (!cb.current.hang) { if (performance.now() - o.t0 < 220) feel('release', { pitch: cb.current.pitch }); else feel('rebound', { pitch: cb.current.pitch, amt: o.peak }); }
       buzz(o.peak > .5 ? [8, 30, 8] : 6);
@@ -353,8 +353,8 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
   const play = (k) => setReact(r => ({ k, n: r.n + 1 }));
   // 2026-11-06 사용자: 표정은 기본 표정만. (표정 그리기는 Face에 남겨 두고, 바꾸지는 않는다 — 몸 모션은 그대로)
   const face = () => {};
-  const armSleep = () => { if (!sleepy || forced) return; later('sleep', 9000, () => { setPose('sit'); play('pop'); }); };
-  const wake = () => { if (pose === 'sit') { setPose('wave'); play('pop'); later('back', 900, () => setPose('stand')); } armSleep(); };
+  const armSleep = () => { if (!sleepy || forced) return; later('sleep', 20000, () => { setPose('sit'); play('pop'); }); };
+  const wake = () => { if (pose === 'sit') { setPose('wave'); play('pop'); lastReact.current = performance.now(); later('back', 1600, () => setPose('stand')); } armSleep(); };
   React.useEffect(() => { armSleep(); return () => Object.values(timers.current).forEach(clearTimeout); }, [forced]);
   // 눈 깜빡
   React.useEffect(() => { let alive = true; const loop = () => { if (!alive) return; setBlink(true); setTimeout(() => setBlink(false), 130); setTimeout(loop, 2600 + Math.random() * 2600); };
@@ -388,7 +388,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
   React.useEffect(() => { if (!dangle) return; const t = setInterval(() => feel('swing', { pitch }), 600); return () => clearInterval(t); }, [!!dangle]);
   // 손가락 쪽으로 기울고 바라보기
   React.useEffect(() => {
-    if (!lean) return;
+    if (!lean || (window.matchMedia && matchMedia('(pointer: coarse)').matches)) return;   // 손가락 폰에선 화면 어디를 눌러도·스크롤해도 홱홱 기울어서 끔
     const mv = (e) => { const n = boxRef.current; if (!n) return; const r = n.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height * .38;
       const dx = e.clientX - cx, dy = e.clientY - cy, d = Math.hypot(dx, dy) || 1;
       setLean(Math.max(-7, Math.min(7, dx / 28))); setGaze([dx / d * Math.min(5, d / 30), dy / d * Math.min(4, d / 40)]);
@@ -398,17 +398,20 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
   }, [lean]);
   // 어디를 만졌나
   const zone = (nx, ny) => ny < .2 ? 'forehead' : ny < .5 ? (Math.abs(nx - .5) > .2 ? 'cheek' : 'nose') : (nx < .16 || nx > .84) ? 'arm' : ny > .9 ? 'feet' : 'belly';
+  const lastReact = React.useRef(0);
   const react2 = (z) => {
-    const now = performance.now(); taps.current = [...taps.current.filter(t => now - t < 1500), now];
-    if (taps.current.length >= 5) { taps.current = []; setPose('stand'); face('dizzy', 1700); play('spin'); feel('stretch', { pitch: .7 }); buzz([8, 30, 8, 30, 8]); return; }
-    if (taps.current.length >= 2 && now - taps.current[taps.current.length - 2] < 300) { play('spin'); face('happy', 700); return; }
+    // 2026-11-06: 폰에서 너무 빨리빨리 움직여 보여서 — 연달아 눌러도 반응 동작은 1.6초에 한 번만 (그 사이엔 말랑하게 눌리기만),
+    // 두 번·다섯 번 연타 회전은 뺐다
+    const now = performance.now();
+    if (now - lastReact.current < 1600) return;
+    lastReact.current = now;
     if (forced) return;
-    if (z === 'forehead') { setPose('stand'); face('squint', 800); play('nod'); }
-    else if (z === 'cheek') { setPose('stand'); face('happy', 700); play('wiggle'); }
-    else if (z === 'nose') { setPose('stand'); face('surprised', 600); play('pop'); }
-    else if (z === 'belly') { setPose('stand'); face('happy', 900); play('giggle'); }
-    else if (z === 'arm') { setPose('wave'); later('back', 900, () => setPose('stand')); }
-    else play('hop');
+    if (z === 'forehead') { setPose('stand'); play('nod'); }
+    else if (z === 'cheek') { setPose('stand'); play('wiggle'); }
+    else if (z === 'nose') { setPose('stand'); play('pop'); }
+    else if (z === 'belly') { setPose('stand'); play('giggle'); }
+    else if (z === 'arm') { setPose('wave'); later('back', 1600, () => setPose('stand')); }
+    else play('pop');
   };
   const [ref, hand] = useJelly({ pitch, holdEvery, disabled, hang: !!dangle,
     onPress: () => {
@@ -416,7 +419,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
       if (parts.length >= FULL) { const id = Math.random(); setHearts(x => [...x.slice(-8), { id, dx: (Math.random() - .5) * w * .9, s: .8 + Math.random() * .7 }]); later('h' + id, 1200, () => setHearts(x => x.filter(y => y.id !== id))); }
       onPress && onPress();
     },
-    onHold, onRelease: (peak) => { if (peak > .45 && !dangle) play('hop'); onRelease && onRelease(peak); } });
+    onHold, onRelease: (peak) => { if (peak > .45 && !dangle && performance.now() - lastReact.current > 1600) { lastReact.current = performance.now(); play('hop'); } onRelease && onRelease(peak); } });
   // 매달리기: 만세 자세(두 손 위)의 머리 꼭대기가 커서 바로 아래 오게 몸을 옮긴다. 발은 바닥에서 최소 h*.12 떨어짐
   const anchor = (cx, cy) => {
     const n = boxRef.current; if (!n) return { tx: 0, ty: -h * .2 };
@@ -468,8 +471,8 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
     bands.push({ a: a - .0015, b: b + .0015, s: 1 + .18 * fill * bellyBump((a + b) / 2) });
   } else bands[0].b = 1;
   const floating = idle && cur !== 'sit' && !dangle;
-  const reactAnim = { drop: 'ohwa-drop 900ms var(--ease-calm) both', hop: 'ohwa-hop 620ms var(--ease-calm) both', pop: 'ohwa-posepop 420ms var(--ease-jelly) both', wiggle: 'ohwa-wiggle 520ms ease-in-out both',
-    spin: 'ohwa-spinjump 760ms var(--ease-calm) both', nod: 'ohwa-nod 520ms var(--ease-calm) both', giggle: 'ohwa-giggle 700ms ease-in-out both', land: 'ohwa-land 700ms var(--ease-calm) both' }[react.k] || 'none';
+  const reactAnim = { drop: 'ohwa-drop 1400ms var(--ease-calm) both', hop: 'ohwa-hop 1050ms var(--ease-calm) both', pop: 'ohwa-posepop 760ms var(--ease-calm) both', wiggle: 'ohwa-wiggle 1000ms ease-in-out both',
+    spin: 'ohwa-spinjump 1200ms var(--ease-calm) both', nod: 'ohwa-nod 950ms var(--ease-calm) both', giggle: 'ohwa-giggle 1200ms ease-in-out both', land: 'ohwa-land 1100ms var(--ease-calm) both' }[react.k] || 'none';
   return <div ref={boxRef} style={{ position: 'relative', width: box, height: h, margin: '0 auto' }}>
     {pedestal && <Pedestal w={ped || h * .9} el={el} />}
     <div style={{ position: 'absolute', left: '50%', bottom: h * .005, width: w * (.78 + .16 * fill) * (dangle ? .55 : 1), height: h * .055, borderRadius: '50%', background: 'rgba(40,30,25,.22)', filter: 'blur(7px)', zIndex: 1,
@@ -484,7 +487,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
           <div ref={ref} {...handlers} style={{ position: 'absolute', left: '50%', bottom: 0, width: isStand ? w : pw, height: isStand ? h : ph, marginLeft: -(isStand ? w : pw) / 2,
             transformOrigin: dangle ? '50% 10%' : '50% 97%', cursor: disabled ? 'default' : dangle ? 'grabbing' : 'pointer', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none' }}>
            <div key={react.k + react.n} style={{ position: 'absolute', inset: 0, transformOrigin: '50% 100%', animation: reactAnim, pointerEvents: 'none' }}>
-            <div key={cur} style={{ position: 'absolute', inset: 0, animation: 'ohwa-posepop 380ms var(--ease-jelly) both', pointerEvents: 'none' }}>
+            <div key={cur} style={{ position: 'absolute', inset: 0, animation: 'ohwa-posepop 720ms var(--ease-calm) both', pointerEvents: 'none' }}>
               {/* 몸 + 얼굴 — 서 있기(body.png)는 자세 사진 색에 맞춰 살짝 따뜻하게 */}
               <div style={{ position: 'absolute', inset: 0, filter: isStand ? 'url(#ohwa-warm)' : 'none' }}>
                 {bands.map((bd, i) => <div key={i} style={{ position: 'absolute', inset: 0, clipPath: isStand ? `inset(${bd.a * 100}% -30% ${(1 - bd.b) * 100}% -30%)` : 'none', transform: `scaleX(${bd.s})`, transition: 'transform 520ms var(--ease-jelly)', pointerEvents: 'none' }}>
