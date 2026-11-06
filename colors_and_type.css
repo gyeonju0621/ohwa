@@ -218,3 +218,12 @@ html { touch-action: manipulation; }
 @keyframes ohwa-land   { 0% { transform: translateY(-24px) scale(.97,1.03); } 45% { transform: translateY(0) scale(1.1,.9); } 70% { transform: translateY(-6px) scale(.98,1.02); } 100% { transform: none; } }
 /* zzz: 확 솟지 않고 천천히 떠오르게 */
 @keyframes ohwa-zz { 0% { transform: translate(0,0) scale(.7); opacity: 0; } 25% { opacity: .9; } 100% { transform: translate(14px,-30px) scale(1.05); opacity: 0; } }
+/* 2026-11-07 폰 실사용 2차
+   ① 삼성(안드로이드 크롬): 말랑이를 누르면 파란 네모(탭 강조·그림 선택)가 생김 → 탭 강조 없애고, 글·그림 선택과 길게 눌러 뜨는 메뉴를 막음 (입력칸은 그대로) */
+html, body, .phone, .phone * { -webkit-tap-highlight-color: transparent; }
+.phone, .phone * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.phone input, .phone textarea { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+.phone img { -webkit-user-drag: none; }
+.phone :focus:not(:focus-visible) { outline: none; }
+/* ② 아이폰(html.ios): 움직이는 조각에 붙은 그림자 필터(drop-shadow)는 사파리가 매 프레임 CPU로 다시 그려 움직임이 끊기고 튀어 보임 → 끔 */
+html.ios img[style*="drop-shadow"] { filter: none !important; }

@@ -12,7 +12,7 @@ const EL = {
   water: { ko: '수', hj: '水', part: '물방울', img: A + 'malangi/water.png', piece: A + 'parts-gummy2/water.png', pitch: 1, rgb: [66, 188, 235] },
 };
 const EL_ORDER = ['wood', 'fire', 'earth', 'metal', 'water'];
-const BODY = A + 'malangi/body.png';
+const BODY = A + 'malangi/body-warm.png';   // 2026-11-07: 자세 사진 색에 맞춘 따뜻한 색을 그림에 미리 구움(_build/bake-warm.html) — SVG 필터를 쓰지 않으려고
 const OUTFITS = { spring: { ko: '봄 조끼', img: A + 'malangi/spring.png' }, summer: { ko: '장마 망토', img: A + 'malangi/summer.png' }, winter: { ko: '겨울 목도리', img: A + 'malangi/winter.png' } };
 
 /* 브랜드 로고 — 기하 워드마크 OHWA(원·H·역사다리꼴 W·삼각 A) + 붉은 타원 낙관 五和.
@@ -171,7 +171,7 @@ function PartsInBody({ parts }) {
 const BODY_RATIO = 366 / 560;          // body.png 가로/세로
 const HEAD_END = .565;                 // 이 아래가 몸통(배). 위는 머리
 const BELLY = { cx: .5, cy: .765, rx: .185, ry: .1 };
-const SLICES = 32, FULL = 30;
+const SLICES = 20, FULL = 30;   // 배 부풀리기 띠 수 (32→20: 폰에서 가볍게)
 const bellyBump = (y) => { const t = (y - HEAD_END) / (.985 - HEAD_END); return t <= 0 || t >= 1 ? 0 : Math.pow(Math.sin(Math.PI * Math.pow(t, .85)), .9); };
 
 /* 조각 색을 섞어 몸 색 정하기: 2개부터 슬슬, 30개면 꽤 진하게 */
@@ -278,7 +278,7 @@ function bellySlot(i, fill, B = BELLY, bulgeOn = true) {
    자세 사진마다 원래 눈·입 위치를 재서(_build/measure-poses.html) 그 자리를 살색으로 덮고, 같은 비율로 새 얼굴을 그린다.
    좌표는 각 이미지 픽셀. L·R = 원래 눈 중심, M = 원래 입, ew = 원래 눈 크기, hw = 눈 높이의 머리 폭, skin = 눈 주변 살색 */
 const FACES = {
-  stand: { L: [131.2, 218.8], R: [238.1, 219.1], M: [186, 230.4], ew: 20, mw: 18, mh: 7, hw: 347, sL: '234,225,207', sR: '241,234,221' },
+  stand: { L: [131.2, 218.8], R: [238.1, 219.1], M: [186, 230.4], ew: 20, mw: 18, mh: 7, hw: 347, sL: '234,214,185', sR: '241,222,198' },   // 살색: body-warm.png에 맞춰 따뜻하게 구운 값
   wave:  { L: [168.4, 219.7], R: [312.7, 219.9], M: [241.1, 236.0], ew: 22, mw: 18, mh: 9, hw: 372, sL: '232,216,189', sR: '237,226,208' },
   cheer: { L: [150.6, 203.7], R: [293.3, 203.6], M: [222.9, 219.3], ew: 22, mw: 18, mh: 9, hw: 366, sL: '232,215,188', sR: '236,224,208' },
   sit:   { L: [128.0, 231.9], R: [272.1, 230.3], M: [200.6, 249.0], ew: 22, mw: 18, mh: 7, hw: 374, sL: '233,216,190', sR: '239,226,209' },
@@ -320,7 +320,7 @@ function Face({ pose = 'stand', gaze = [0, 0], blink = false, closed = false }) 
 function PoseImg({ pose = 'stand', h = 100, style }) {
   const P = POSES[pose] || POSES.stand, ph = h * P.k, pw = ph * P.w / P.h;
   return <div style={{ position: 'relative', width: pw, height: ph, flex: 'none', ...style }}>
-    <div style={{ position: 'absolute', inset: 0, filter: pose === 'stand' ? 'url(#ohwa-warm)' : 'none' }}>
+    <div style={{ position: 'absolute', inset: 0 }}>
       <img src={P.src} alt="" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', ...(pose === 'stand' ? {} : POSE_FADE) }} />
       <Face pose={pose} />
     </div>
@@ -466,7 +466,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
   const lastV = parts.slice(-VISIBLE); const vis = lastV.map((p, i) => [p, newest - (lastV.length - 1 - i)]);   // [기운, 일련번호]
   const B = P.belly, bulgeOn = isStand;
   const bands = [{ a: 0, b: HEAD_END + .004, s: 1 }];
-  if (isStand) for (let i = 0; i < SLICES; i++) {
+  if (isStand && fill > 0) for (let i = 0; i < SLICES; i++) {   // 배가 비었으면 한 장으로 (띠로 자를 필요 없음)
     const a = HEAD_END + (1 - HEAD_END) * i / SLICES, b = HEAD_END + (1 - HEAD_END) * (i + 1) / SLICES;
     bands.push({ a: a - .0015, b: b + .0015, s: 1 + .18 * fill * bellyBump((a + b) / 2) });
   } else bands[0].b = 1;
@@ -489,7 +489,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
            <div key={react.k + react.n} style={{ position: 'absolute', inset: 0, transformOrigin: '50% 100%', animation: reactAnim, pointerEvents: 'none' }}>
             <div key={cur} style={{ position: 'absolute', inset: 0, animation: 'ohwa-posepop 720ms var(--ease-calm) both', pointerEvents: 'none' }}>
               {/* 몸 + 얼굴 — 서 있기(body.png)는 자세 사진 색에 맞춰 살짝 따뜻하게 */}
-              <div style={{ position: 'absolute', inset: 0, filter: isStand ? 'url(#ohwa-warm)' : 'none' }}>
+              <div style={{ position: 'absolute', inset: 0 }}>
                 {bands.map((bd, i) => <div key={i} style={{ position: 'absolute', inset: 0, clipPath: isStand ? `inset(${bd.a * 100}% -30% ${(1 - bd.b) * 100}% -30%)` : 'none', transform: `scaleX(${bd.s})`, transition: 'transform 520ms var(--ease-jelly)', pointerEvents: 'none' }}>
                   <img src={P.src} alt="" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', ...(isStand ? {} : POSE_FADE) }} />
                 </div>)}
