@@ -2,6 +2,7 @@
 // Icon · Studio · StatusBar · Dock · Chip · Pedestal · Figure · PartsBody · EL meta
 const feel = (s, o) => window.OhwaFeel && OhwaFeel.play(s, o);
 const buzz = (p) => window.OhwaFeel && OhwaFeel.buzz(p);
+const hap = (k, e, a) => window.OhwaFeel && OhwaFeel.haptic && OhwaFeel.haptic(k, e, a);   // 기운별 진동
 const A = '../assets/';
 
 const EL = {
@@ -183,10 +184,10 @@ function bodyTint(parts) {
 }
 
 /* 스프링 젤리 — 누름 깊이 q(+ 눌림, − 늘어남)를 물리로 굴린다 */
-function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 480, disabled, hang }) {
+function useJelly({ pitch = 1, el, onPress, onHold, onRelease, holdEvery = 480, disabled, hang }) {
   const ref = React.useRef(null);
   const s = React.useRef({ q: 0, v: 0, sk: 0, sv: 0, held: false, t0: 0, dx: 0, dy: 0, x0: 0, y0: 0, raf: 0, last: 0, nextHold: 0, deep: false, peak: 0 });
-  const cb = React.useRef({}); cb.current = { onPress, onHold, onRelease, disabled, pitch, hang };
+  const cb = React.useRef({}); cb.current = { onPress, onHold, onRelease, disabled, pitch, hang, el };
   const paint = () => {
     const o = s.current, n = ref.current; if (!n) return;
     const q = o.q, sx = 1 + .3 * q, sy = 1 - .27 * q;
@@ -201,7 +202,7 @@ function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 480, disa
       if (o.dy < -8) target = -Math.min(1, -o.dy / 110) * .75;   // 위로 끌면 늘어남
       k = 240; c = 26;
       if (cb.current.hang) { target = -.2; k = 120; c = 9; }      // 대롱대롱: 매달려서 아래로 늘어남
-      if (target > .55 && !o.deep && !cb.current.hang) { o.deep = true; feel('deep', { pitch: cb.current.pitch }); buzz(18); }
+      if (target > .55 && !o.deep && !cb.current.hang) { o.deep = true; feel('deep', { pitch: cb.current.pitch }); hap('deep', cb.current.el); }
       if (o.snd) o.snd.set(cb.current.hang ? 0 : Math.max(0, o.q) / .73);   // 눌린 깊이만큼 뽀글뽀글
       o.peak = Math.max(o.peak, Math.abs(target));
     }
@@ -222,8 +223,8 @@ function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 480, disa
       o.v -= 1.3;                                      // 톡 — 첫 순간 살짝 튕겨 들어감
       // 꾹 누르고 있으면 0.48초 뒤부터 조각이 계속 (위로 끌어 늘리는 중엔 멈춤)
       clearTimeout(o.ht); clearInterval(o.hi);
-      o.ht = setTimeout(() => { o.hi = setInterval(() => { if (o.held && o.dy > -8 && cb.current.onHold) { cb.current.onHold(); buzz(8); } }, holdEvery); }, 480);
-      feel('press', { pitch: cb.current.pitch }); buzz(14); cb.current.onPress && cb.current.onPress();
+      o.ht = setTimeout(() => { o.hi = setInterval(() => { if (o.held && o.dy > -8 && cb.current.onHold) { cb.current.onHold(); hap('hold', cb.current.el); } }, holdEvery); }, 480);
+      feel('press', { pitch: cb.current.pitch }); hap('press', cb.current.el); cb.current.onPress && cb.current.onPress();
       // 0.16초 넘게 누르고 있으면 "꾸우욱" 소리가 이어진다
       clearTimeout(o.st); if (o.snd) o.snd.stop(); o.snd = null;
       o.st = setTimeout(() => { if (o.held && window.OhwaFeel && OhwaFeel.hold) o.snd = OhwaFeel.hold({ pitch: cb.current.pitch }); }, 160);
@@ -236,7 +237,7 @@ function useJelly({ pitch = 1, onPress, onHold, onRelease, holdEvery = 480, disa
       o.v -= .9 + o.peak * 2.4;                          // 깊게 눌렀을수록 크게 튀어 오름
       // 소리: 짧게 톡 = 가벼운 "퐁" / 오래 꾹 = 깊이만큼 출렁 "뽀옹" / 매달렸다 놓으면 Malangi가 "철퍽"을 낸다
       if (!cb.current.hang) { if (performance.now() - o.t0 < 220) feel('release', { pitch: cb.current.pitch }); else feel('rebound', { pitch: cb.current.pitch, amt: o.peak }); }
-      buzz(o.peak > .5 ? [8, 30, 8] : 6);
+      if (!cb.current.hang) hap('release', cb.current.el, o.peak);
       cb.current.onRelease && cb.current.onRelease(o.peak); kick();
     },
   };
@@ -444,7 +445,7 @@ function Malangi({ h = 300, parts = [], pedestal = true, ped, el, idle = true, o
     else if (z === 'arm') { setPose('wave'); later('back', 1600, () => setPose('stand')); }
     else play('pop');
   };
-  const [ref, hand] = useJelly({ pitch, holdEvery, disabled, hang: !!dangle,
+  const [ref, hand] = useJelly({ pitch, el, holdEvery, disabled, hang: !!dangle,
     onPress: () => {
       wake();
       if (parts.length >= FULL) { const id = Math.random(); setHearts(x => [...x.slice(-8), { id, dx: (Math.random() - .5) * w * .9, s: .8 + Math.random() * .7 }]); later('h' + id, 1200, () => setHearts(x => x.filter(y => y.id !== id))); }

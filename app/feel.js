@@ -89,16 +89,45 @@
   // 몸통: 손 안에서 눌리는 먹먹한 저음 숨소리
   const body = (c, t, dur, f0, f1, vol, attack = .06) => hiss(c, t, dur, { type: 'lowpass', f0, f1, q: .9, vol, attack });
 
+  // v5 (2026-11-07): "말랑" — 누를 때와 뗄 때를 확실히 다르게.
+  //   말랑한 소리의 정체 = 공명(모음 같은 울림)이 있는 촉촉한 소리. 노이즈를 좁은 공명 필터로 훑으면 "무-" "뽀-" 같은 모음이 생긴다.
+  //   누름 = 공명이 아래로 꺼짐 → 낮고 먹먹한 "물컹·꾸욱"
+  //   뗌   = 공명이 위로 튀어 오름 + 끝에 작은 방울 "뽁" → 가볍고 탱글한 "뽀용"
+  function goo(c, t, dur, f0, f1, vol, q = 7, attack = .012) {
+    const n = c.createBufferSource(), b = c.createBiquadFilter(), lp = c.createBiquadFilter(), g = c.createGain();
+    n.buffer = noise(c); b.type = 'bandpass'; b.Q.value = q;
+    b.frequency.setValueAtTime(f0, t); b.frequency.exponentialRampToValueAtTime(Math.max(60, f1), t + dur * .8);
+    lp.type = 'lowpass'; lp.frequency.value = 1700;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    n.connect(b).connect(lp).connect(g); out(g); n.start(t, Math.random()); n.stop(t + dur + .02);
+  }
   const S = {
-    // 천천히 쥐기: 처음엔 촘촘히 뽀드득, 점점 느슨하게 — 깊을수록 낮아짐
-    press(c, t, p) { rub(c, t, .42, { r0: 85, r1: 26, f0: 430 * p, f1: 250 * p, v0: .26, v1: .08 }); body(c, t, .45, 420 * p, 190, .09, .07); },
-    // 아주 깊이 눌림: 한 번 더 꽉 쥐는 묵직한 마찰
-    deep(c, t, p) { rub(c, t, .34, { r0: 110, r1: 50, f0: 280 * p, f1: 200 * p, v0: .22, v1: .1, q: 4.5 }); body(c, t, .36, 300, 150, .08, .05); },
-    // 펴기: 실리콘이 천천히 되돌아오며 미끄러지는 소리 — 점점 높고 가늘게 사라짐
-    release(c, t, p) { rub(c, t, .3, { r0: 55, r1: 12, f0: 300 * p, f1: 470 * p, v0: .16, v1: .03 }); body(c, t, .3, 240, 420 * p, .045, .03); },
-    rebound(c, t, p, amt = .5) { rub(c, t, .34 + amt * .3, { r0: 70 + amt * 40, r1: 10, f0: 260 * p, f1: 500 * p, v0: .14 + amt * .1, v1: .02 }); body(c, t, .4 + amt * .2, 220, 460 * p, .05 + amt * .04, .03); },
-    // 짧게 톡: 살짝 쥐었다 바로 폄
-    tap(c, t, p) { rub(c, t, .13, { r0: 95, r1: 50, f0: 380 * p, f1: 300 * p, v0: .2, v1: .1 }); rub(c, t + .12, .16, { r0: 45, r1: 10, f0: 320 * p, f1: 460 * p, v0: .1, v1: .02 }); body(c, t, .22, 360, 220, .05, .02); },
+    // 누름 "물컹": 공명이 아래로 꺼지며 먹먹하게 + 몸통 저음 + 바닥에 깔리는 작은 찌걱
+    press(c, t, p) {
+      const d = rnd(.97, 1.03);
+      goo(c, t, .24, 560 * p * d, 210 * p, 1.1, 6, .014);
+      body(c, t, .26, 380, 130, .13, .012);
+      thump(c, t, 150 * p, 92, .18, .07);
+      squelch(c, t + .03, p, 3, .09, 150, 260, .1);
+    },
+    // 아주 깊이 눌림: 한 번 더 "꾸욱" — 더 낮게 꺼짐
+    deep(c, t, p) { goo(c, t, .3, 340 * p, 150 * p, .9, 5, .03); body(c, t, .3, 300, 120, .1, .03); },
+    // 뗌 "뽀용": 공명이 위로 튀어 오르고 끝에 작은 방울 "뽁"
+    release(c, t, p) {
+      const d = rnd(.97, 1.03);
+      goo(c, t, .17, 250 * p * d, 680 * p, 1.0, 8, .006);
+      bubble(c, t + .09, 560 * p, .05, .2);
+      goo(c, t + .12, .2, 640 * p, 500 * p, .28, 10, .01);         // 탱글하게 남는 꼬리
+    },
+    // 오래 꾹 누르다 뗌: 더 크게 튀어 오르고 한두 번 더 출렁 "뽀요옹" (amt = 얼마나 깊었나 0~1)
+    rebound(c, t, p, amt = .5) {
+      goo(c, t, .2 + amt * .08, 210 * p, 720 * p, .9 + amt * .4, 8, .006);
+      bubble(c, t + .11, 520 * p, .055, .22);
+      goo(c, t + .16, .24, 700 * p, 470 * p, .32 + amt * .2, 10, .012);
+      if (amt > .4) { goo(c, t + .3, .2, 600 * p, 460 * p, .16 + amt * .1, 10, .012); bubble(c, t + .34, 600 * p, .04, .1); }
+    },
+    // 짧게 톡: 살짝 물컹 → 바로 뽀용
+    tap(c, t, p) { goo(c, t, .12, 480 * p, 260 * p, .75, 6, .008); goo(c, t + .08, .14, 280 * p, 620 * p, .7, 8, .006); bubble(c, t + .15, 560 * p, .04, .14); },
     // 들어 올림: 늘어나며 촘촘해지는 마찰 → 바닥에서 떨어지는 먹먹한 "뽁"
     lift(c, t, p) { rub(c, t, .36, { r0: 35, r1: 120, f0: 300 * p, f1: 620 * p, v0: .07, v1: .17 }); body(c, t + .32, .14, 650, 160, .14, .004); },
     swing(c, t, p) { body(c, t, .34, 420, 600, .022, .12); },
@@ -144,6 +173,42 @@
       stop() { if (!alive) return; alive = false; const t = c.currentTime; g.gain.setTargetAtTime(0.0001, t, .04); n.stop(t + .25); },
     };
   };
-  F.buzz = (pattern) => { if (F.haptics && navigator.vibrate) try { navigator.vibrate(pattern); } catch (e) {} };
+  // ── 진동 ──
+  // 안드로이드: navigator.vibrate(패턴). 아이폰 사파리는 vibrate가 없다 →
+  //   iOS 17.4+ 의 스위치 체크박스(<input type=checkbox switch>)를 눌러 주면 아이폰이 "톡" 햅틱을 낸다. 그걸 패턴 박자에 맞춰 여러 번.
+  const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const iosTick = () => {
+    try {
+      const l = document.createElement('label'), i = document.createElement('input');
+      l.setAttribute('aria-hidden', 'true'); l.style.display = 'none'; i.type = 'checkbox'; i.setAttribute('switch', ''); l.appendChild(i);
+      document.head.appendChild(l); l.click(); document.head.removeChild(l);
+    } catch (e) {}
+  };
+  F.buzz = (pattern) => {
+    if (!F.haptics) return;
+    if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} return; }
+    if (!IOS) return;
+    const p = Array.isArray(pattern) ? pattern : [pattern]; let at = 0, n = 0;
+    p.forEach((ms, k) => { if (k % 2 === 0 && n < 3) { n++; if (at === 0) iosTick(); else setTimeout(iosTick, at); } at += ms; });
+  };
+  // 기운마다 다른 손맛 (ms: 진동, 쉼, 진동 …)
+  //   목 = 쑥 자라듯 점점 / 화 = 톡톡 튀게 / 토 = 묵직하게 한 번 / 금 = 또렷하고 짧게 / 수 = 물결처럼 출렁
+  const HAP = {
+    wood:  { press: [8, 45, 16],          release: [6, 50, 10],  pick: [6, 40, 12] },
+    fire:  { press: [6, 26, 6, 26, 9],    release: [5, 24, 6],   pick: [5, 24, 5, 24, 7] },
+    earth: { press: [30],                 release: [16],         pick: [24] },
+    metal: { press: [5, 70, 5],           release: [4],          pick: [4, 60, 4] },
+    water: { press: [9, 55, 12, 55, 6],   release: [6, 70, 5],   pick: [7, 50, 9, 50, 5] },
+    none:  { press: [14],                 release: [6],          pick: [6] },
+  };
+  // OhwaFeel.haptic('press' | 'release' | 'pick' | 'hold' | 'deep', 기운, 깊이0~1)
+  F.haptic = (kind, el, amt = 0) => {
+    const h = HAP[el] || HAP.none;
+    if (kind === 'hold') return F.buzz(h.release);
+    if (kind === 'deep') return F.buzz(h.press.map(v => Math.round(v * 1.3)));
+    let p = h[kind] || h.press;
+    if (kind === 'release' && amt > .5) p = [...p, 40, 8, 60, 5];          // 깊게 눌렀다 뗌 → 출렁 여운
+    F.buzz(p);
+  };
   window.OhwaFeel = F;
 })();

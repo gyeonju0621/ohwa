@@ -200,7 +200,7 @@ function TodayScreen({ go, fills, addFill }) {
   }, []);
   // 2026-11-07: 기운 칩을 누르면 고르기만 하지 않고 바로 그 조각이 칩에서 배로 쏙 (예전엔 칩을 고른 뒤 몸을 다시 눌러야 했음)
   // 칩 가운데 x = 장면 가운데에서 (i-2)×66.8px, 칩은 말랑이 발밑보다 약 38px 아래 → 배 가운데 기준 약 +92px
-  const pick = (e, i) => { setSel(e); setFrom({ x: (i - 2) * 66.8, y: 92 }); addFill(e, 1); feel('tick', { pitch: EL[e].pitch }); buzz(6); };
+  const pick = (e, i) => { setSel(e); setFrom({ x: (i - 2) * 66.8, y: 92 }); addFill(e, 1); feel('tap', { pitch: EL[e].pitch }); hap('pick', e); };
   const hello = new Date().getHours() < 12 ? '좋은 아침이에요' : new Date().getHours() < 18 ? '좋은 오후예요' : '편안한 저녁이에요';
   return <div style={fadeIn}>
     <div ref={scroller} style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 120, boxSizing: 'border-box' }}>
