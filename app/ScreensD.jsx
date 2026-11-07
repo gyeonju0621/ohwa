@@ -123,8 +123,9 @@ const linkBtn = { border: 0, background: 'transparent', cursor: 'pointer', fontF
 /* ---------- 02 Intro — 소개 3장 (밀어서 넘기기) ---------- */
 function NfcRings({ size = 260, fast }) {
   return <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0, pointerEvents: 'none' }}>
-    {[0, 1, 2].map(k => <i key={k} style={{ position: 'absolute', left: 0, top: 0, width: size, height: size, borderRadius: '50%', border: '2px solid var(--water)',
-      animation: `ohwa-nfc ${fast ? 2.2 : 3.8}s ${k * (fast ? .73 : 1.26)}s var(--ease-calm) infinite` }} />)}
+    {/* 2026-11-07: 늦게 시작하는 원이 기다리는 동안 가운데 맞춤 없이 오른쪽 아래에 그려져 말랑이·글자 위로 겹쳤다 → 기본 모양을 가운데·투명으로 두고 'both' */}
+    {[0, 1, 2].map(k => <i key={k} style={{ position: 'absolute', left: 0, top: 0, width: size, height: size, borderRadius: '50%', border: '2px solid var(--water)', boxSizing: 'border-box',
+      transform: 'translate(-50%,-50%) scale(.42)', opacity: 0, animation: `ohwa-nfc ${fast ? 2.2 : 3.8}s ${k * (fast ? .73 : 1.26)}s var(--ease-calm) infinite both` }} />)}
   </div>;
 }
 function IntroScreen({ onDone }) {

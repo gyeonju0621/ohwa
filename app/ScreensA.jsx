@@ -84,10 +84,14 @@ const INK = 'var(--ink-strong)';   // 낮 코코아 브라운 / 밤 크림 (테�
 const tint = (el, p) => `color-mix(in srgb, var(--${el}) ${p}%, var(--tint-base))`;   // 흰색 대신 아이보리와 섞는다
 const sceneBg = (el) => `linear-gradient(180deg, var(--scene-top) 0%, ${tint(el, 14)} 45%, ${tint(el, 48)} 100%)`;
 /* 아래에서 올라오는 시트 (다른 화면에서도 씀) */
+// 2026-11-07: 시트가 화면 안에 그려지면 아래 도크(오늘·사주·기록)가 위층이라 시트 아래 버튼을 덮어 안 눌렸다
+// → 폰 틀(.phone) 바로 아래로 옮겨 그려서(portal) 도크보다 위에. 폰 틀을 못 찾으면 그 자리에 그대로
 function Sheet({ onClose, children }) {
-  return <div style={{ position: 'absolute', inset: 0, zIndex: 40, background: 'rgba(30,25,30,.28)', display: 'flex', alignItems: 'flex-end', animation: 'ohwa-in 260ms both' }} onClick={onClose}>
-    <div className="card" onClick={e => e.stopPropagation()} style={{ margin: 12, borderRadius: 34, padding: '24px 22px 18px', width: '100%', textAlign: 'center', animation: 'ohwa-pop 520ms var(--ease-jelly) both' }}>{children}</div>
+  const el = <div style={{ position: 'absolute', inset: 0, zIndex: 44, background: 'rgba(30,25,30,.28)', display: 'flex', alignItems: 'flex-end', animation: 'ohwa-in 260ms both' }} onClick={onClose}>
+    <div className="card" onClick={e => e.stopPropagation()} style={{ margin: 12, marginBottom: 18, borderRadius: 34, padding: '24px 22px 18px', width: '100%', textAlign: 'center', animation: 'ohwa-pop 520ms var(--ease-calm) both' }}>{children}</div>
   </div>;
+  const host = document.querySelector('.phone');
+  return host ? ReactDOM.createPortal(el, host) : el;
 }
 /* 말랑이가 들려주는 오늘의 이야기 — 위: 말랑이(자세가 바뀜) / 아래: 말풍선처럼 솟은 흰 판 + 다음 */
 function storyPages(rec, charge) {
